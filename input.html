@@ -1,154 +1,134 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generator Kode Klarifikasi (Encoded)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Kode Klarifikasi</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-4">
 
-  <div class="max-w-xl mx-auto bg-zinc-800 p-4 rounded-lg shadow-lg space-y-4">
-    <h1 class="text-xl font-bold text-yellow-400">Generator Kode Klarifikasi (Encoded)</h1>
+<div class="max-w-xl mx-auto bg-zinc-800 p-4 rounded-lg shadow-lg space-y-4">
+  <h1 class="text-xl font-bold text-yellow-400">Generator Kode Klarifikasi (Encode Variabel)</h1>
 
-    <div class="space-y-2">
-      <label class="block text-sm">Judul Video:</label>
-      <input type="text" id="judul" class="w-full p-2 rounded bg-zinc-700 text-white" value="GEGER! Video Klarifikasi yang Jarang Diketahui!">
+  <div class="space-y-2">
+    <label class="block text-sm">Judul Video:</label>
+    <input type="text" id="judul" class="w-full p-2 rounded bg-zinc-700 text-white" value="GEGER! Video Klarifikasi yang Jarang Diketahui!">
 
-      <label class="block text-sm">Nama Channel:</label>
-      <input type="text" id="channel" class="w-full p-2 rounded bg-zinc-700 text-white" value="Berita Viral Channel">
+    <label class="block text-sm">Nama Channel:</label>
+    <input type="text" id="channel" class="w-full p-2 rounded bg-zinc-700 text-white" value="Berita Viral Channel">
 
-      <label class="block text-sm">Thumbnail YouTube (URL Gambar):</label>
-      <input type="text" id="thumbnail" class="w-full p-2 rounded bg-zinc-700 text-white" value="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg">
+    <label class="block text-sm">Thumbnail YouTube (URL Gambar):</label>
+    <input type="text" id="thumbnail" class="w-full p-2 rounded bg-zinc-700 text-white" value="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg">
 
-      <label class="block text-sm">Tayangan (misal: 1,8 jt tayangan):</label>
-      <input type="text" id="tayangan" class="w-full p-2 rounded bg-zinc-700 text-white">
+    <label class="block text-sm">Tayangan:</label>
+    <input type="text" id="tayangan" class="w-full p-2 rounded bg-zinc-700 text-white">
 
-      <label class="block text-sm">Waktu Upload (misal: 2 hari yang lalu):</label>
-      <input type="text" id="waktu" class="w-full p-2 rounded bg-zinc-700 text-white">
+    <label class="block text-sm">Waktu Upload:</label>
+    <input type="text" id="waktu" class="w-full p-2 rounded bg-zinc-700 text-white">
 
-      <label class="block text-sm">URL Redirect Iklan:</label>
-      <input type="text" id="linkIklan" class="w-full p-2 rounded bg-zinc-700 text-white" value="https://linkiklanmu.com">
+    <label class="block text-sm">URL Redirect Iklan:</label>
+    <input type="text" id="linkIklan" class="w-full p-2 rounded bg-zinc-700 text-white" value="https://linkiklanmu.com">
 
-      <label class="block text-sm">URL Halaman (untuk og:url):</label>
-      <input type="text" id="urlHalaman" class="w-full p-2 rounded bg-zinc-700 text-white" value="https://domainkamu.com/halaman-video-hoax">
-    </div>
-
-    <button onclick="generateEncoded()" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded w-full mt-4">Generate (Encoded)</button>
-
-    <h2 class="mt-6 font-bold">Hasil Kode (Encoded):</h2>
-    <textarea id="output" rows="15" class="w-full p-2 rounded bg-zinc-700 text-white text-sm"></textarea>
+    <label class="block text-sm">URL Halaman:</label>
+    <input type="text" id="urlHalaman" class="w-full p-2 rounded bg-zinc-700 text-white" value="https://domainkamu.com/halaman-video-hoax">
   </div>
 
-  <script>
-    function htmlEncode(str) {
-      return str.replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-    }
-
-    function generateEncoded() {
-      const judul = document.getElementById('judul').value;
-      const channel = document.getElementById('channel').value;
-      const thumbnail = document.getElementById('thumbnail').value;
-      const tayangan = document.getElementById('tayangan').value;
-      const waktu = document.getElementById('waktu').value;
-      const linkIklan = document.getElementById('linkIklan').value;
-      const urlHalaman = document.getElementById('urlHalaman').value;
-
-      const kode = `<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${judul}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-<meta property="og:title" content="${judul}" />
-<meta property="og:description" content="Jangan Kaget! Video lengkap hanya bisa ditonton di sini. Klik Play untuk melihat sekarang sebelum dihapus!" />
-<meta property="og:image" content="${thumbnail}" />
-<meta property="og:url" content="${urlHalaman}" />
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="${channel}" />
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${judul}" />
-<meta name="twitter:description" content="Jangan Kaget! Video lengkap hanya bisa ditonton di sini. Klik Play untuk melihat sekarang sebelum dihapus!" />
-<meta name="twitter:image" content="${thumbnail}" />
-
-<style>
-.clickable-video:hover .overlay { background-color: rgba(0, 0, 0, 0.5); }
-.video-controls { position: absolute; bottom: 0; left: 0; width: 100%; padding: 8px; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0)); }
-.video-progress-bar { height: 6px; background-color: #555; border-radius: 4px; overflow: hidden; flex-grow: 1; margin: 0 8px; }
-.video-progress-filled { height: 100%; width: 0%; background-color: #3b82f6; animation: progressAnim 8s linear forwards; }
-@keyframes progressAnim { from { width: 0%; } to { width: 30%; } }
-.play-button-overlay { width: 56px; height: 56px; background-color: rgba(0, 0, 0, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.play-button-small { width: 18px; height: 18px; background-color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.play-button-small svg { margin-left: 1px; }
-</style>
-</head>
-<body class="bg-black text-white font-sans">
-
-<div class="max-w-2xl mx-auto mt-6 bg-zinc-900 rounded shadow-md overflow-hidden border border-zinc-800">
-  <div class="p-4">
-    <h1 class="text-lg font-bold text-yellow-400 mb-2">${judul}</h1>
-
-    <div class="text-sm text-gray-400 mb-3 flex flex-wrap items-center gap-2">
-      <img src="https://img.icons8.com/?size=100&id=1PmidrWrnXey&format=png&color=ffffff" class="w-5 h-5 rounded-full">
-      <span class="font-semibold text-white">${channel}</span>
-      <span class="text-gray-500 text-sm">• ${tayangan}</span>
-      <span class="text-gray-500 text-sm">• ${waktu}</span>
-    </div>
-
-    <div onclick="redirectToAd()" class="relative cursor-pointer rounded-xl overflow-hidden clickable-video bg-black">
-      <img src="${thumbnail}" class="w-full">
-      <div class="absolute inset-0 flex items-center justify-center">
-        <div class="play-button-overlay">
-          <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg>
-        </div>
-      </div>
-      <div class="video-controls flex items-center px-3">
-        <div class="play-button-small">
-          <svg width="8" height="10" viewBox="0 0 24 24" fill="black"><polygon points="6,4 20,12 6,20"/></svg>
-        </div>
-        <div class="video-progress-bar"><div class="video-progress-filled"></div></div>
-        <div class="text-xs text-gray-300 pl-1">0:00 / 3:42</div>
-      </div>
-    </div>
-
-    <p class="mt-3 text-sm"><span class="text-white font-semibold">Jangan Kaget!</span> Video lengkap hanya bisa ditonton di sini. Klik Play untuk melihat sekarang sebelum dihapus!</p>
-
-    <div class="mt-4 flex items-center justify-between text-gray-400 text-sm border-t border-gray-700 pt-3">
-      <div class="flex items-center space-x-4">
-        <div onclick="redirectToAd()" class="flex items-center space-x-1 cursor-pointer hover:underline">
-          <img src="https://img.icons8.com/color/24/facebook-like.png" class="w-4 h-4">
-          <span>25 rb</span>
-        </div>
-        <div onclick="redirectToAd()" class="flex items-center space-x-1 cursor-pointer hover:underline">
-          <img src="https://img.icons8.com/ios-filled/24/9ca3af/comments.png" class="w-4 h-4">
-          <span>1,2 rb</span>
-        </div>
-      </div>
-      <div onclick="redirectToAd()" class="text-blue-400 hover:underline cursor-pointer">Bagikan</div>
-    </div>
-
+  <div class="flex space-x-2 mt-4">
+    <button onclick="generateKode()" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded w-full">Generate</button>
+    <button onclick="resetForm()" class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded w-full">Reset</button>
   </div>
+
+  <h2 class="mt-6 font-bold">Hasil Kode:</h2>
+  <textarea id="output" rows="15" class="w-full p-2 rounded bg-zinc-700 text-white text-sm"></textarea>
+  <button onclick="copyKode()" class="mt-2 bg-green-500 hover:bg-green-600 text-black font-bold px-4 py-2 rounded w-full">Copy ke Clipboard</button>
 </div>
 
 <script>
-function redirectToAd() {
-  window.location.href = "${linkIklan}";
+function htmlDecode(input) {
+  const e = document.createElement('textarea');
+  e.innerHTML = input;
+  return e.value;
+}
+
+function generateKode() {
+  const judul = document.getElementById('judul').value;
+  const channel = document.getElementById('channel').value;
+  const thumbnail = document.getElementById('thumbnail').value;
+  const tayangan = document.getElementById('tayangan').value;
+  const waktu = document.getElementById('waktu').value;
+  const linkIklan = document.getElementById('linkIklan').value;
+  const urlHalaman = document.getElementById('urlHalaman').value;
+
+  const kode = `&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;id&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot; /&gt;
+  &lt;title&gt;${judul}&lt;/title&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+
+  &lt;meta property=&quot;og:title&quot; content=&quot;${judul}&quot; /&gt;
+  &lt;meta property=&quot;og:image&quot; content=&quot;${thumbnail}&quot; /&gt;
+  &lt;meta property=&quot;og:url&quot; content=&quot;${urlHalaman}&quot; /&gt;
+  &lt;meta property=&quot;og:site_name&quot; content=&quot;${channel}&quot; /&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-black text-white font-sans&quot;&gt;
+
+&lt;div class=&quot;max-w-2xl mx-auto mt-6 bg-zinc-900 rounded shadow-md overflow-hidden border border-zinc-800&quot;&gt;
+  &lt;div class=&quot;p-4&quot;&gt;
+    &lt;h1 class=&quot;text-lg font-bold text-yellow-400 mb-2&quot;&gt;${judul}&lt;/h1&gt;
+
+    &lt;div class=&quot;text-sm text-gray-400 mb-3 flex flex-wrap items-center gap-2&quot;&gt;
+      &lt;img src=&quot;https://img.icons8.com/?size=100&amp;id=1PmidrWrnXey&amp;format=png&amp;color=ffffff&quot; class=&quot;w-5 h-5 rounded-full&quot;&gt;
+      &lt;span class=&quot;font-semibold text-white&quot;&gt;${channel}&lt;/span&gt;
+      &lt;span class=&quot;text-gray-500 text-sm&quot;&gt;• ${tayangan}&lt;/span&gt;
+      &lt;span class=&quot;text-gray-500 text-sm&quot;&gt;• ${waktu}&lt;/span&gt;
+    &lt;/div&gt;
+
+    &lt;div onclick=&quot;window.location.href='${linkIklan}'&quot; class=&quot;relative cursor-pointer rounded-xl overflow-hidden clickable-video bg-black&quot;&gt;
+      &lt;img src=&quot;${thumbnail}&quot; class=&quot;w-full&quot;&gt;
+      &lt;div class=&quot;absolute inset-0 flex items-center justify-center&quot;&gt;
+        &lt;div class=&quot;play-button-overlay&quot;&gt;
+          &lt;svg width=&quot;24&quot; height=&quot;24&quot; fill=&quot;#fff&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;polygon points=&quot;6,4 20,12 6,20&quot;/&gt;&lt;/svg&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;video-controls flex items-center px-3&quot;&gt;
+        &lt;div class=&quot;play-button-small&quot;&gt;
+          &lt;svg width=&quot;8&quot; height=&quot;10&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;black&quot;&gt;&lt;polygon points=&quot;6,4 20,12 6,20&quot;/&gt;&lt;/svg&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;video-progress-bar&quot;&gt;&lt;div class=&quot;video-progress-filled&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+        &lt;div class=&quot;text-xs text-gray-300 pl-1&quot;&gt;0:00 / 3:42&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;`;
+
+  document.getElementById('output').value = htmlDecode(kode);
+}
+
+function copyKode() {
+  const textarea = document.getElementById('output');
+  textarea.select();
+  document.execCommand('copy');
+  alert('Kode berhasil disalin!');
+}
+
+function resetForm() {
+  document.getElementById('judul').value = '';
+  document.getElementById('channel').value = '';
+  document.getElementById('thumbnail').value = '';
+  document.getElementById('tayangan').value = '';
+  document.getElementById('waktu').value = '';
+  document.getElementById('linkIklan').value = '';
+  document.getElementById('urlHalaman').value = '';
+  document.getElementById('output').value = '';
 }
 </script>
-
-</body>
-</html>`;
-
-      document.getElementById('output').value = htmlEncode(kode);
-    }
-  </script>
 
 </body>
 </html>
