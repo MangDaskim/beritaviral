@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Viral</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Meta Preview untuk Sosial Media -->
+<meta property="og:title" content="Bunda kita di malay bersama bangla" />
+<meta property="og:description" content="Jangan Kaget! Video lengkap hanya bisa ditonton di sini. Klik Play untuk melihat sekarang sebelum dihapus!" />
+<meta property="og:image" content="GAMBAR" />
+<meta property="og:url" content="https://beritaviralnew.biz.id/news/1-bunda-kita-di-malay-bersama-bangla" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Berita Viral Channel" />
+</head>
+<body class="bg-black text-white font-sans">
+
+  <div class="max-w-2xl mx-auto mt-6 bg-zinc-900 rounded shadow-md overflow-hidden border border-zinc-800">
+    <div class="p-4">
+      <h1 class="text-lg font-bold text-yellow-400 mb-2">
+        Bunda kita di malay bersama bangla
+      </h1>
+
+      <!-- Info Bar -->
+      <div class="text-sm text-gray-400 mb-3 flex flex-wrap items-center gap-2">
+        <img src="https://img.icons8.com/?size=100&id=1PmidrWrnXey&format=png&color=ffffff" class="w-5 h-5 rounded-full" alt="Channel">
+        <span class="font-semibold text-white">Berita Viral Channel</span>
+        <span class="text-gray-500 text-sm">• 1,8 jt tayangan</span>
+        <span class="text-gray-500 text-sm">• 2 hari yang lalu</span>
+      </div>
+
+      <!-- Fake Video Player -->
+      <div onclick="redirectToAd()" class="relative cursor-pointer rounded-xl overflow-hidden clickable-video bg-black">
+        <img src="GAMBAR" alt="Video Klarifikasi" class="w-full">
+
+        <!-- Overlay Tombol Play Tengah -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="play-button-overlay">
+            <svg width="24" height="24" fill="#fff" viewBox="0 0 24 24">
+              <polygon points="6,4 20,12 6,20"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Kontrol Video Palsu -->
+        <div class="video-controls flex items-center px-3">
+          <!-- Tombol Play Kecil -->
+          <div class="play-button-small">
+            <svg width="8" height="10" viewBox="0 0 24 24" fill="black">
+              <polygon points="6,4 20,12 6,20"/>
+            </svg>
+          </div>
+
+          <!-- Bar dan Waktu -->
+          <div class="video-progress-bar">
+            <div class="video-progress-filled"></div>
+          </div>
+          <div class="text-xs text-gray-300 pl-1">0:00 / 3:42</div>
+        </div>
+      </div>
+
+      <!-- Deskripsi -->
+      <p class="mt-3 text-sm">
+        <span class="text-white font-semibold">Jangan Kaget!</span> Video lengkap hanya bisa ditonton di sini. Klik Play untuk melihat sekarang sebelum dihapus!
+      </p>
+
+      <!-- Reaksi & Bagikan -->
+      <div class="mt-4 flex items-center justify-between text-gray-400 text-sm border-t border-gray-700 pt-3">
+        <div class="flex items-center space-x-4">
+          <!-- LIKE -->
+          <div onclick="redirectToAd()" class="flex items-center space-x-1 cursor-pointer hover:underline">
+            <img src="https://img.icons8.com/color/24/facebook-like.png" alt="like" class="w-4 h-4">
+            <span>25 rb</span>
+          </div>
+
+          <!-- KOMENTAR -->
+          <div onclick="redirectToAd()" class="flex items-center space-x-1 cursor-pointer hover:underline">
+            <img src="https://img.icons8.com/ios-filled/24/9ca3af/comments.png" alt="komentar" class="w-4 h-4">
+            <span>1,2 rb</span>
+          </div>
+        </div>
+
+        <!-- BAGIKAN -->
+        <div onclick="redirectToAd()" class="text-blue-400 hover:underline cursor-pointer">
+          Bagikan
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .clickable-video:hover .overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .video-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 8px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+    }
+
+    .video-progress-bar {
+      height: 6px;
+      background-color: #555;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-grow: 1;
+      margin: 0 8px;
+    }
+
+    .video-progress-filled {
+      height: 100%;
+      width: 0%;
+      background-color: #3b82f6;
+      animation: progressAnim 8s linear forwards;
+    }
+
+    @keyframes progressAnim {
+      from { width: 0%; }
+      to { width: 30%; }
+    }
+
+    .play-button-overlay {
+      width: 56px;
+      height: 56px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-button-small {
+      width: 18px;
+      height: 18px;
+      background-color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-button-small svg {
+      margin-left: 1px;
+    }
+  </style>
+
+  <script>
+    function redirectToAd() {
+      window.location.href = "https://www.profitableratecpm.com/vqd78nxxu?key=b46982f3cfe98b8759bbc68be5f68fea"; // Ganti dengan URL redirect kamu
+    }
+  </script>
+
+</body>
+</html>
