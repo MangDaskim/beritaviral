@@ -51,7 +51,7 @@
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
 
-  const slug = `${nextNumber}-${slugText}`;
+  const slug = `news/${nextNumber}-${slugText}`;
 
   document.getElementById("slugOutput").innerText = slug;
   document.getElementById("result").classList.remove("hidden");
