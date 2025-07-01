@@ -71,7 +71,7 @@ const popupNotif = document.getElementById('popupNotif');
 const popupText = document.getElementById('popupText');
 
 // Ganti URL sesuai Web Apps Google Sheet kamu
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbygkPMWx058gSM5eUk62vpcTgiDFblQxUSgRfUBkEcmQD4CSiuEjNw9o8N466PfsdBZAA/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzf-A7twkz_FYdZ8eqacyj8D-F1GDE3qTHN9GJvi1Ggrw5RqHTQ-qXXJ5KsH_rSzj8h/exec';
 
 btnLogin.addEventListener('click', () => {
   loginForm.classList.remove('hidden');
@@ -123,7 +123,7 @@ registerForm.addEventListener('submit', e => {
         })
       })
       .then(() => {
-        setTimeout(() => window.location.href = 'index.html', 1500);
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
       })
       .catch(() => {
         loadingOverlay.classList.add('hidden');
@@ -151,7 +151,7 @@ loginForm.addEventListener('submit', e => {
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-      setTimeout(() => window.location.href = 'index.html', 1500);
+      setTimeout(() => window.location.href = 'dashboard.html', 1500);
     } else {
       loadingOverlay.classList.add('hidden');
       showPopup('Username/email atau password salah');
