@@ -168,6 +168,7 @@ btnIklanAwal.addEventListener('click', () => {
   setTimeout(() => mulaiCaptcha(), 2000);
 });
 
+// Helper simpan sesi
 function saveSession() {
   localStorage.setItem('captchaSession', JSON.stringify({
     counter: captchaCounter,
@@ -310,28 +311,6 @@ function tambahPoin(jumlah) {
     userData.poin = poinBaru;
     pPoin.textContent = poinBaru;
     showPopup(`Poin bertambah +${jumlah}`);
-
-    // Progress Bar setelah berhasil tambah poin
-    Swal.fire({
-      title: 'Menambahkan Poin...',
-      html: `
-        <div class="w-full bg-gray-200 rounded-full h-4 mt-4">
-          <div id="poinProgress" class="bg-green-500 h-4 w-0 rounded-full"></div>
-        </div>
-      `,
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      timer: 2000,
-      didOpen: () => {
-        const progress = Swal.getPopup().querySelector('#poinProgress');
-        let lebar = 0;
-        const interval = setInterval(() => {
-          lebar += 5;
-          progress.style.width = lebar + '%';
-          if (lebar >= 100) clearInterval(interval);
-        }, 100);
-      }
-    });
   })
   .catch(() => showPopup('Gagal menambah poin'))
   .finally(() => loadingOverlay.classList.add('hidden'));
