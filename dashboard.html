@@ -210,7 +210,13 @@ function buatCaptcha() {
     });
   }
 
-  const val = Math.floor(1000 + Math.random() * 9000);
+  // Captcha kombinasi huruf besar kecil angka 8 karakter
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let val = '';
+  for (let i = 0; i < 8; i++) {
+    val += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
   captchaContainer.innerHTML = `
     <div class="border p-3 space-y-2">
       <div class="flex justify-between items-center">
@@ -247,9 +253,11 @@ function buatCaptcha() {
     clearInterval(interval);
     captchaCounter++;
     captchaAttempt++;
-    if (input.value.trim() == val) {
+    if (input.value.trim() === val) {
       captchaCorrect++;
       tambahPoin(1);
+    } else {
+      Swal.fire('Captcha Salah', 'Silakan coba lagi.', 'error');
     }
     cekKunciTask();
     buatCaptcha();
