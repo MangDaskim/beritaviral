@@ -53,9 +53,8 @@
   <div id="withdrawSection" class="space-y-4 hidden">
   <h2 class="font-bold text-center">Tukar Poin ke Rupiah</h2>
   <div><b>Poin Kamu:</b> <span id="withdrawPoin">0</span></div>
-  <input type="number" id="jumlahPoin" placeholder="Jumlah Poin" class="w-full px-3 py-2 border rounded">
   <div class="mt-2"><b>Estimasi Rupiah:</b> <span id="estimasiRupiah">Rp0</span></div>
-  <button id="btnWithdraw" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Ajukan Withdraw</button>
+  <button id="btnWithdraw" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Ajukan Withdraw Semua Poin</button>
   </div>
 </div>
 
@@ -129,16 +128,14 @@ tabWithdraw.addEventListener('click', () => {
 });
 
   btnWithdraw.addEventListener('click', () => {
-  const poin = parseInt(jumlahPoin.value);
-  if (!poin || poin <= 0) return showPopup('Masukkan jumlah poin yang valid');
-  if (poin > parseInt(userData.poin)) return showPopup('Poin tidak cukup');
+  const poin = parseInt(userData.poin);
+  if (!poin || poin <= 0) return showPopup('Poin kamu belum cukup untuk withdraw');
   const rupiah = Math.floor(poin / 100);
-
   if (rupiah <= 0) return showPopup('Minimal withdraw 100 poin (Rp1)');
 
   Swal.fire({
     title: 'Konfirmasi Withdraw',
-    html: `Tukar <b>${poin} poin</b> menjadi <b>Rp${rupiah}</b>?<br>Data akan dikirim ke email.`,
+    html: `Tukar <b>${poin} poin</b> menjadi <b>Rp${rupiah}</b>?<br>Setelah withdraw, poin kamu akan menjadi 0.`,
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: 'Ya, Kirim',
@@ -158,11 +155,9 @@ tabWithdraw.addEventListener('click', () => {
         })
       })
       .then(() => {
-        const sisaPoin = parseInt(userData.poin) - poin;
-        userData.poin = sisaPoin;
-        pPoin.textContent = sisaPoin;
-        withdrawPoin.textContent = sisaPoin;
-        jumlahPoin.value = '';
+        userData.poin = 0;
+        pPoin.textContent = 0;
+        withdrawPoin.textContent = 0;
         estimasiRupiah.textContent = 'Rp0';
         showPopup('Withdraw diajukan, cek email konfirmasi');
       })
