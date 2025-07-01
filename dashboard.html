@@ -168,7 +168,6 @@ btnIklanAwal.addEventListener('click', () => {
   setTimeout(() => mulaiCaptcha(), 2000);
 });
 
-// Helper simpan sesi
 function saveSession() {
   localStorage.setItem('captchaSession', JSON.stringify({
     counter: captchaCounter,
@@ -229,7 +228,7 @@ function buatCaptcha() {
     return;
   }
 
-  if (captchaCounter > 0 && captchaCounter % 5 === 0) {
+  if (captchaCounter > 0 && captchaCounter % 5 === 0 && captchaContainer.innerHTML === '') {
     Swal.fire({
       title: 'Klik Iklan Dulu',
       icon: 'info',
@@ -238,6 +237,7 @@ function buatCaptcha() {
       window.open('https://linkiklan.com', '_blank');
       tambahPoin(7);
     });
+    return;
   }
 
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -271,27 +271,30 @@ function buatCaptcha() {
     bar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
     if (timeLeft <= 0) {
       clearInterval(interval);
-      captchaCounter++;
       captchaAttempt++;
       cekKunciTask();
       saveSession();
-      buatCaptcha();
+      buatCaptcha(); // Ganti captcha, nomor tetap
     }
   }, 1000);
 
   function validate() {
     clearInterval(interval);
-    captchaCounter++;
     captchaAttempt++;
     if (input.value.trim() === val) {
       captchaCorrect++;
+      captchaCounter++;
       tambahPoin(1);
+      cekKunciTask();
+      saveSession();
+      buatCaptcha(); // Lanjut ke captcha berikutnya
     } else {
-      Swal.fire('Captcha Salah', 'Silakan coba lagi.', 'error');
+      Swal.fire('Captcha Salah', 'Captcha diganti, silakan coba lagi.', 'error').then(() => {
+        cekKunciTask();
+        saveSession();
+        buatCaptcha(); // Ganti captcha, nomor tetap
+      });
     }
-    cekKunciTask();
-    saveSession();
-    buatCaptcha();
   }
 
   submit.addEventListener('click', validate);
