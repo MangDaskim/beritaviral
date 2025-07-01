@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dashboard Pengguna</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
 
@@ -195,10 +196,25 @@ btnKlaimPoin.addEventListener('click', () => {
 });
 
   document.getElementById('btnLogout').addEventListener('click', () => {
-  if (confirm("Yakin ingin logout?")) {
-    localStorage.removeItem('username');
-    window.location.href = 'index.html';
-  }
+  Swal.fire({
+    title: 'Yakin Logout?',
+    text: 'Kamu akan keluar dari akun ini.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Logout',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('username');
+      Swal.fire({
+        title: 'Berhasil Logout',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      setTimeout(() => window.location.href = 'index.html', 1500);
+    }
+  });
 });
 
 loadUser();
