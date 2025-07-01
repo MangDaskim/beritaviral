@@ -228,14 +228,20 @@ function buatCaptcha() {
     return;
   }
 
-  if (captchaCounter > 0 && captchaCounter % 5 === 0 && captchaContainer.innerHTML === '') {
+  if (captchaCounter > 0 && captchaCounter % 10 === 0 && captchaContainer.innerHTML === '') {
     Swal.fire({
-      title: 'Klik Iklan Dulu',
+      title: 'Wajib Klik Iklan',
+      text: 'Klik iklan lalu tunggu 10 detik untuk dapat poin.',
       icon: 'info',
       confirmButtonText: 'Klik Iklan'
     }).then(() => {
-      window.open('https://linkiklan.com', '_blank');
-      tambahPoin(7);
+      const win = window.open('https://linkiklan.com', '_blank');
+      setTimeout(() => {
+        tambahPoin(7);
+        Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
+          buatCaptcha();
+        });
+      }, 10000);
     });
     return;
   }
@@ -274,7 +280,7 @@ function buatCaptcha() {
       captchaAttempt++;
       cekKunciTask();
       saveSession();
-      buatCaptcha(); // Ganti captcha, nomor tetap
+      buatCaptcha();
     }
   }, 1000);
 
@@ -287,12 +293,12 @@ function buatCaptcha() {
       tambahPoin(1);
       cekKunciTask();
       saveSession();
-      buatCaptcha(); // Lanjut ke captcha berikutnya
+      buatCaptcha();
     } else {
       Swal.fire('Captcha Salah', 'Captcha diganti, silakan coba lagi.', 'error').then(() => {
         cekKunciTask();
         saveSession();
-        buatCaptcha(); // Ganti captcha, nomor tetap
+        buatCaptcha();
       });
     }
   }
