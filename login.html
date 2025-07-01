@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login & Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 relative">
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="text-white text-xl">Mohon Tunggu...</div>
+  </div>
+
+  <!-- Popup Full Width Bawah -->
+  <div id="popupNotif" class="fixed bottom-0 left-0 right-0 bg-red-500 text-white text-center py-3 shadow hidden z-50">
+    <span id="popupText"></span>
+  </div>
+
+  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-6">
+    
+    <!-- Logo -->
+    <div class="flex justify-center mb-4">
+      <img src="https://via.placeholder.com/120x60?text=LOGO" alt="Logo" class="h-16">
+    </div>
+
+    <h2 class="text-2xl font-bold text-center text-gray-800">Selamat Datang</h2>
+
+    <div class="flex justify-center space-x-2">
+      <button id="btnLogin" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">Login</button>
+      <button id="btnRegister" class="flex-1 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="space-y-4 hidden">
+      <input type="text" id="loginUser" placeholder="Email atau Username" required class="w-full px-4 py-2 border rounded">
+      <input type="password" id="loginPassword" placeholder="Password" required class="w-full px-4 py-2 border rounded">
+      
+      <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Login</button>
+
+      <p class="text-center text-sm mt-2">
+        <a href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20lupa%20password.%20Mohon%20bantuannya." target="_blank" class="text-indigo-600 hover:underline">
+          Lupa Password? Hubungi Admin
+        </a>
+      </p>
+    </form>
+
+    <!-- Register Form -->
+    <form id="registerForm" class="space-y-4">
+      <input type="text" id="regNama" placeholder="Nama Lengkap" required class="w-full px-4 py-2 border rounded">
+      <input type="text" id="regUsername" placeholder="Username" required class="w-full px-4 py-2 border rounded">
+      <input type="email" id="regEmail" placeholder="Email" required class="w-full px-4 py-2 border rounded">
+      <input type="text" id="regWA" placeholder="Cth: 6281234567890" required class="w-full px-4 py-2 border rounded">
+      <input type="password" id="regPassword" placeholder="Password (Min 8 karakter)" required class="w-full px-4 py-2 border rounded">
+      
+      <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700">Register</button>
+    </form>
+
+    <p id="pesan" class="text-center text-sm text-gray-600"></p>
+  </div>
+
+<script>
+const btnLogin = document.getElementById('btnLogin');
+const btnRegister = document.getElementById('btnRegister');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const pesan = document.getElementById('pesan');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const popupNotif = document.getElementById('popupNotif');
+const popupText = document.getElementById('popupText');
+
+// Ganti URL sesuai Web Apps Google Sheet kamu
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbygkPMWx058gSM5eUk62vpcTgiDFblQxUSgRfUBkEcmQD4CSiuEjNw9o8N466PfsdBZAA/exec';
+
+btnLogin.addEventListener('click', () => {
+  loginForm.classList.remove('hidden');
+  registerForm.classList.add('hidden');
+  pesan.textContent = '';
+});
+
+btnRegister.addEventListener('click', () => {
+  registerForm.classList.remove('hidden');
+  loginForm.classList.add('hidden');
+  pesan.textContent = '';
+});
+
+registerForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const nama = document.getElementById('regNama').value.trim();
+  const username = document.getElementById('regUsername').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const wa = document.getElementById('regWA').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  if (nama.length < 3) return showPopup("Nama minimal 3 karakter");
+  if (username.length < 3) return showPopup("Username minimal 3 karakter");
+  if (!validateEmail(email)) return showPopup("Format email tidak valid");
+  if (!validateWA(wa)) return showPopup("Nomor WhatsApp tidak valid (awali dengan 62)");
+  if (password.length < 8) return showPopup("Password minimal 8 karakter");
+
+  loadingOverlay.classList.remove('hidden');
+
+  // Cek Username, Email, WA
+  fetch(SHEET_URL + `?action=cek&username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&wa=${encodeURIComponent(wa)}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.usernameExist) {
+      loadingOverlay.classList.add('hidden');
+      showPopup("Username sudah terpakai, silakan pilih yang lain");
+    } else if (data.emailExist) {
+      loadingOverlay.classList.add('hidden');
+      showPopup("Email sudah terpakai, silakan pilih yang lain");
+    } else if (data.waExist) {
+      loadingOverlay.classList.add('hidden');
+      showPopup("Nomor WhatsApp sudah terdaftar");
+    } else {
+      fetch(SHEET_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'register',
+          nama, username, email, wa, password, tanggal: new Date().toLocaleString()
+        })
+      })
+      .then(() => {
+        setTimeout(() => window.location.href = 'index.html', 1500);
+      })
+      .catch(() => {
+        loadingOverlay.classList.add('hidden');
+        showPopup('Terjadi kesalahan, coba lagi');
+      });
+    }
+  })
+  .catch(() => {
+    loadingOverlay.classList.add('hidden');
+    showPopup('Terjadi kesalahan, coba lagi');
+  });
+});
+
+loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const user = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (user.length < 3) return showPopup("Masukkan Username atau Email yang valid");
+  if (password.length < 8) return showPopup("Password minimal 8 karakter");
+
+  loadingOverlay.classList.remove('hidden');
+
+  fetch(SHEET_URL + `?action=login&user=${encodeURIComponent(user)}&password=${encodeURIComponent(password)}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      setTimeout(() => window.location.href = 'index.html', 1500);
+    } else {
+      loadingOverlay.classList.add('hidden');
+      showPopup('Username/email atau password salah');
+    }
+  })
+  .catch(() => {
+    loadingOverlay.classList.add('hidden');
+    showPopup('Terjadi kesalahan, coba lagi');
+  });
+});
+
+function validateEmail(email) {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
+function validateWA(wa) {
+  return /^62\d{9,13}$/.test(wa.replace(/\D/g, ""));
+}
+
+function showPopup(message) {
+  popupText.textContent = message;
+  popupNotif.classList.remove('hidden');
+  setTimeout(() => popupNotif.classList.add('hidden'), 3000);
+}
+</script>
+
+</body>
+</html>
