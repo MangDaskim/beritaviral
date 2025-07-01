@@ -1,3 +1,4 @@
+saya mau tambahakan tab withdraw dan di tab ini pengguna bisa menukarkan semua poin menjadi rupiah, dan dimana 100 poinnya ini bernilai 1 rupiah. dan informasi withdraw ini akan di kirim kan ke email admin dengan mencantumkan data profil pengguna nama, username, dan email.  
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -59,7 +60,7 @@
 </div>
 
 <script>
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyFs3-4qd5GkwZ2mVbFXVyJD_We4D1SpuGLUucK2GSgEaOawZjXzxRgxNdDh8XFAhT4Wg/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzKb8v49RTof2qk6FqceVRGo_XKVbmO0FHRIp-b9stzVno6qLTmKpWVZOa6VbYMk9eTVw/exec';
 
 const profilSection = document.getElementById('profilSection');
 const taskSection = document.getElementById('taskSection');
@@ -437,66 +438,6 @@ function cekKunciTask() {
     setTimeout(() => window.location.reload(), 2000);
   }
 }
-
-  const withdrawSection = document.getElementById('withdrawSection');
-const tabWithdraw = document.getElementById('tabWithdraw');
-const withdrawPoin = document.getElementById('withdrawPoin');
-const estimasiRupiah = document.getElementById('estimasiRupiah');
-const btnWithdrawSemua = document.getElementById('btnWithdrawSemua');
-
-tabWithdraw.addEventListener('click', () => {
-  profilSection.classList.add('hidden');
-  taskSection.classList.add('hidden');
-  withdrawSection.classList.remove('hidden');
-  tabProfil.classList.remove('bg-indigo-100');
-  tabTask.classList.remove('bg-indigo-100');
-  tabWithdraw.classList.add('bg-indigo-100');
-
-  withdrawPoin.textContent = userData.poin || 0;
-  const rupiah = Math.floor((parseInt(userData.poin) || 0) / 100);
-  estimasiRupiah.textContent = `Rp${rupiah}`;
-});
-
-btnWithdrawSemua.addEventListener('click', () => {
-  const poin = parseInt(userData.poin) || 0;
-  if (poin <= 0) return showPopup('Kamu tidak punya poin untuk ditukar');
-
-  const rupiah = Math.floor(poin / 100);
-  if (rupiah <= 0) return showPopup('Minimal 100 poin untuk ditukar');
-
-  Swal.fire({
-    title: 'Konfirmasi Withdraw',
-    html: `Tukar <b>${poin} poin</b> menjadi <b>Rp${rupiah}</b>?<br>Data akan dikirim ke email admin.`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Tukar',
-    cancelButtonText: 'Batal'
-  }).then(result => {
-    if (result.isConfirmed) {
-      loadingOverlay.classList.remove('hidden');
-      fetch(SHEET_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'withdraw',
-          username: userData.username,
-          nama: userData.nama,
-          email: userData.email,
-          poin: poin,
-          rupiah: rupiah
-        })
-      })
-      .then(() => {
-        userData.poin = 0;
-        pPoin.textContent = 0;
-        withdrawPoin.textContent = 0;
-        estimasiRupiah.textContent = 'Rp0';
-        showPopup('Withdraw berhasil, tunggu konfirmasi admin');
-      })
-      .catch(() => showPopup('Gagal mengajukan withdraw'))
-      .finally(() => loadingOverlay.classList.add('hidden'));
-    }
-  });
-});
 
 loadUser();
 </script>
