@@ -151,8 +151,9 @@ loginForm.addEventListener('submit', e => {
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-      setTimeout(() => window.location.href = 'dashboard.html', 1500);
-    } else {
+  localStorage.setItem('username', user); // Simpan username ke localStorage
+  setTimeout(() => window.location.href = 'dashboard.html', 1500);
+} else {
       loadingOverlay.classList.add('hidden');
       showPopup('Username/email atau password salah');
     }
