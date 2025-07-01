@@ -103,7 +103,7 @@ function showPopup(msg) {
 function loadUser() {
   loadingOverlay.classList.remove('hidden');
   const username = localStorage.getItem('username');
-  if (!username) return window.location.href = 'dashboard.html';
+  if (!username) return window.location.href = 'index.html';
 
   fetch(SHEET_URL + `?action=detail&username=${encodeURIComponent(username)}`)
   .then(res => res.json())
