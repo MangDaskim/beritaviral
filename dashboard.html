@@ -168,6 +168,31 @@ btnIklanAwal.addEventListener('click', () => {
   setTimeout(() => mulaiCaptcha(), 2000);
 });
 
+// Helper simpan sesi
+function saveSession() {
+  localStorage.setItem('captchaSession', JSON.stringify({
+    counter: captchaCounter,
+    correct: captchaCorrect,
+    attempt: captchaAttempt
+  }));
+}
+
+function loadSession() {
+  const data = localStorage.getItem('captchaSession');
+  if (data) {
+    const sesi = JSON.parse(data);
+    captchaCounter = sesi.counter;
+    captchaCorrect = sesi.correct;
+    captchaAttempt = sesi.attempt;
+    return true;
+  }
+  return false;
+}
+
+function clearSession() {
+  localStorage.removeItem('captchaSession');
+}
+
 function mulaiCaptcha() {
   if (isTaskLocked) return showPopup('Task terkunci, coba lagi besok.');
 
@@ -184,9 +209,13 @@ function mulaiCaptcha() {
 
   taskArea.classList.remove('hidden');
   btnIklanAwal.classList.add('hidden');
-  captchaCounter = 0;
-  captchaCorrect = 0;
-  captchaAttempt = 0;
+
+  if (!loadSession()) {
+    captchaCounter = 0;
+    captchaCorrect = 0;
+    captchaAttempt = 0;
+  }
+
   captchaContainer.innerHTML = '';
   buatCaptcha();
 }
@@ -195,6 +224,7 @@ function buatCaptcha() {
   if (captchaCounter >= 100) {
     sessionCount++;
     localStorage.setItem('lastCaptchaTime', Date.now());
+    clearSession();
     Swal.fire('Task selesai', 'Tunggu 15 menit sebelum task berikutnya.', 'success');
     return;
   }
@@ -210,7 +240,6 @@ function buatCaptcha() {
     });
   }
 
-  // Captcha kombinasi huruf besar kecil angka 8 karakter
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let val = '';
   for (let i = 0; i < 8; i++) {
@@ -245,6 +274,7 @@ function buatCaptcha() {
       captchaCounter++;
       captchaAttempt++;
       cekKunciTask();
+      saveSession();
       buatCaptcha();
     }
   }, 1000);
@@ -260,6 +290,7 @@ function buatCaptcha() {
       Swal.fire('Captcha Salah', 'Silakan coba lagi.', 'error');
     }
     cekKunciTask();
+    saveSession();
     buatCaptcha();
   }
 
