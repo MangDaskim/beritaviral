@@ -25,6 +25,7 @@
   <div class="flex justify-center space-x-2">
     <button id="tabProfil" class="flex-1 py-2 border rounded bg-indigo-100">Profil</button>
     <button id="tabTask" class="flex-1 py-2 border rounded">Task</button>
+    <button id="tabWithdraw" class="flex-1 py-2 border rounded">Withdraw</button>
   </div>
 
   <div id="profilSection" class="space-y-3">
@@ -48,10 +49,17 @@
       <div id="captchaContainer" class="space-y-2"></div>
     </div>
   </div>
+
+  <div id="withdrawSection" class="space-y-4 hidden">
+  <h2 class="font-bold text-center">Tukar Semua Poin ke Rupiah</h2>
+  <div><b>Poin Kamu:</b> <span id="withdrawPoin">0</span></div>
+  <div><b>Estimasi Rupiah:</b> <span id="estimasiRupiah">Rp0</span></div>
+  <button id="btnWithdrawSemua" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Tukar Semua Poin</button>
+  </div>
 </div>
 
 <script>
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzf-A7twkz_FYdZ8eqacyj8D-F1GDE3qTHN9GJvi1Ggrw5RqHTQ-qXXJ5KsH_rSzj8h/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyFs3-4qd5GkwZ2mVbFXVyJD_We4D1SpuGLUucK2GSgEaOawZjXzxRgxNdDh8XFAhT4Wg/exec';
 
 const profilSection = document.getElementById('profilSection');
 const taskSection = document.getElementById('taskSection');
@@ -429,6 +437,66 @@ function cekKunciTask() {
     setTimeout(() => window.location.reload(), 2000);
   }
 }
+
+  const withdrawSection = document.getElementById('withdrawSection');
+const tabWithdraw = document.getElementById('tabWithdraw');
+const withdrawPoin = document.getElementById('withdrawPoin');
+const estimasiRupiah = document.getElementById('estimasiRupiah');
+const btnWithdrawSemua = document.getElementById('btnWithdrawSemua');
+
+tabWithdraw.addEventListener('click', () => {
+  profilSection.classList.add('hidden');
+  taskSection.classList.add('hidden');
+  withdrawSection.classList.remove('hidden');
+  tabProfil.classList.remove('bg-indigo-100');
+  tabTask.classList.remove('bg-indigo-100');
+  tabWithdraw.classList.add('bg-indigo-100');
+
+  withdrawPoin.textContent = userData.poin || 0;
+  const rupiah = Math.floor((parseInt(userData.poin) || 0) / 100);
+  estimasiRupiah.textContent = `Rp${rupiah}`;
+});
+
+btnWithdrawSemua.addEventListener('click', () => {
+  const poin = parseInt(userData.poin) || 0;
+  if (poin <= 0) return showPopup('Kamu tidak punya poin untuk ditukar');
+
+  const rupiah = Math.floor(poin / 100);
+  if (rupiah <= 0) return showPopup('Minimal 100 poin untuk ditukar');
+
+  Swal.fire({
+    title: 'Konfirmasi Withdraw',
+    html: `Tukar <b>${poin} poin</b> menjadi <b>Rp${rupiah}</b>?<br>Data akan dikirim ke email admin.`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Tukar',
+    cancelButtonText: 'Batal'
+  }).then(result => {
+    if (result.isConfirmed) {
+      loadingOverlay.classList.remove('hidden');
+      fetch(SHEET_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'withdraw',
+          username: userData.username,
+          nama: userData.nama,
+          email: userData.email,
+          poin: poin,
+          rupiah: rupiah
+        })
+      })
+      .then(() => {
+        userData.poin = 0;
+        pPoin.textContent = 0;
+        withdrawPoin.textContent = 0;
+        estimasiRupiah.textContent = 'Rp0';
+        showPopup('Withdraw berhasil, tunggu konfirmasi admin');
+      })
+      .catch(() => showPopup('Gagal mengajukan withdraw'))
+      .finally(() => loadingOverlay.classList.add('hidden'));
+    }
+  });
+});
 
 loadUser();
 </script>
