@@ -25,6 +25,7 @@
   <div class="flex justify-center space-x-2">
     <button id="tabProfil" class="flex-1 py-2 border rounded bg-indigo-100">Profil</button>
     <button id="tabTask" class="flex-1 py-2 border rounded">Task</button>
+    <button id="tabWithdraw" class="flex-1 py-2 border rounded">Withdraw</button>
   </div>
 
   <div id="profilSection" class="space-y-3">
@@ -48,10 +49,18 @@
       <div id="captchaContainer" class="space-y-2"></div>
     </div>
   </div>
+
+  <div id="withdrawSection" class="space-y-4 hidden">
+  <h2 class="font-bold text-center">Tukar Poin ke Rupiah</h2>
+  <div><b>Poin Kamu:</b> <span id="withdrawPoin">0</span></div>
+  <input type="number" id="jumlahPoin" placeholder="Jumlah Poin" class="w-full px-3 py-2 border rounded">
+  <div class="mt-2"><b>Estimasi Rupiah:</b> <span id="estimasiRupiah">Rp0</span></div>
+  <button id="btnWithdraw" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Ajukan Withdraw</button>
+  </div>
 </div>
 
 <script>
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzf-A7twkz_FYdZ8eqacyj8D-F1GDE3qTHN9GJvi1Ggrw5RqHTQ-qXXJ5KsH_rSzj8h/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxVBbMunFLftIjHbnrnEy8sjp1S0O5cDS0YIUk-aOh-hg451MUUYAolYDjotzAx0mlPNg/exec';
 
 const profilSection = document.getElementById('profilSection');
 const taskSection = document.getElementById('taskSection');
@@ -71,6 +80,13 @@ const btnUbahPassword = document.getElementById('btnUbahPassword');
 const btnIklanAwal = document.getElementById('btnIklanAwal');
 const taskArea = document.getElementById('taskArea');
 const captchaContainer = document.getElementById('captchaContainer');
+
+const tabWithdraw = document.getElementById('tabWithdraw');
+const withdrawSection = document.getElementById('withdrawSection');
+const withdrawPoin = document.getElementById('withdrawPoin');
+const jumlahPoin = document.getElementById('jumlahPoin');
+const estimasiRupiah = document.getElementById('estimasiRupiah');
+const btnWithdraw = document.getElementById('btnWithdraw');
 
 let userData = {};
 let captchaCounter = 0;
@@ -92,6 +108,68 @@ tabTask.addEventListener('click', () => {
   taskSection.classList.remove('hidden');
   tabProfil.classList.remove('bg-indigo-100');
   tabTask.classList.add('bg-indigo-100');
+});
+
+tabWithdraw.addEventListener('click', () => {
+  profilSection.classList.add('hidden');
+  taskSection.classList.add('hidden');
+  withdrawSection.classList.remove('hidden');
+
+  tabProfil.classList.remove('bg-indigo-100');
+  tabTask.classList.remove('bg-indigo-100');
+  tabWithdraw.classList.add('bg-indigo-100');
+
+  withdrawPoin.textContent = userData.poin || 0;
+});
+
+  jumlahPoin.addEventListener('input', () => {
+  const poin = parseInt(jumlahPoin.value) || 0;
+  const rupiah = Math.floor(poin / 100);
+  estimasiRupiah.textContent = `Rp${rupiah}`;
+});
+
+  btnWithdraw.addEventListener('click', () => {
+  const poin = parseInt(jumlahPoin.value);
+  if (!poin || poin <= 0) return showPopup('Masukkan jumlah poin yang valid');
+  if (poin > parseInt(userData.poin)) return showPopup('Poin tidak cukup');
+  const rupiah = Math.floor(poin / 100);
+
+  if (rupiah <= 0) return showPopup('Minimal withdraw 100 poin (Rp1)');
+
+  Swal.fire({
+    title: 'Konfirmasi Withdraw',
+    html: `Tukar <b>${poin} poin</b> menjadi <b>Rp${rupiah}</b>?<br>Data akan dikirim ke email.`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Kirim',
+    cancelButtonText: 'Batal'
+  }).then(result => {
+    if (result.isConfirmed) {
+      loadingOverlay.classList.remove('hidden');
+      fetch(SHEET_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'withdraw',
+          username: userData.username,
+          nama: userData.nama,
+          email: userData.email,
+          poin: poin,
+          rupiah: rupiah
+        })
+      })
+      .then(() => {
+        const sisaPoin = parseInt(userData.poin) - poin;
+        userData.poin = sisaPoin;
+        pPoin.textContent = sisaPoin;
+        withdrawPoin.textContent = sisaPoin;
+        jumlahPoin.value = '';
+        estimasiRupiah.textContent = 'Rp0';
+        showPopup('Withdraw diajukan, cek email konfirmasi');
+      })
+      .catch(() => showPopup('Gagal mengirim withdraw'))
+      .finally(() => loadingOverlay.classList.add('hidden'));
+    }
+  });
 });
 
 function showPopup(msg) {
