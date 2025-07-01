@@ -166,7 +166,31 @@ document.getElementById('btnLogout').addEventListener('click', () => {
 
 btnIklanAwal.addEventListener('click', () => {
   window.open('https://linkiklan.com', '_blank');
-  setTimeout(() => mulaiCaptcha(), 2000);
+
+  Swal.fire({
+    title: 'Tunggu 10 Detik',
+    html: `
+      Jangan tutup halaman ini.<br><br>
+      <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+        <div id="progressAwal" class="bg-green-500 h-4 w-0 rounded-full"></div>
+      </div>
+    `,
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      const bar = Swal.getHtmlContainer().querySelector('#progressAwal');
+      let waktu = 10;
+      const interval = setInterval(() => {
+        waktu--;
+        bar.style.width = `${(10 - waktu) * 10}%`;
+        if (waktu <= 0) {
+          clearInterval(interval);
+          Swal.close();
+          mulaiCaptcha();
+        }
+      }, 1000);
+    }
+  });
 });
 
 function saveSession() {
