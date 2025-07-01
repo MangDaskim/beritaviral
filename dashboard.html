@@ -78,6 +78,7 @@ let captchaCorrect = 0;
 let captchaAttempt = 0;
 let sessionCount = 0;
 let isTaskLocked = false;
+let lastIklanShown = parseInt(localStorage.getItem('lastIklanShown')) || 0;
 
 tabProfil.addEventListener('click', () => {
   profilSection.classList.remove('hidden');
@@ -158,6 +159,7 @@ document.getElementById('btnLogout').addEventListener('click', () => {
     if (result.isConfirmed) {
       localStorage.removeItem('username');
       localStorage.removeItem('captchaSession');
+      localStorage.removeItem('lastIklanShown');
       Swal.fire('Berhasil Logout', '', 'success');
       setTimeout(() => window.location.href = 'index.html', 1500);
     }
@@ -240,50 +242,52 @@ function mulaiCaptcha() {
     captchaAttempt = 0;
   }
 
-  if (captchaCounter > 0 && captchaCounter % 10 === 0) {
+  if (captchaCounter > 0 && captchaCounter % 10 === 0 && captchaCounter !== lastIklanShown) {
     Swal.fire({
-  title: 'Wajib Klik Iklan',
-  html: `
-    Klik tombol di bawah lalu tunggu 10 detik untuk dapat poin.<br><br>
-    <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
-      <div id="progressIklan" class="bg-blue-500 h-4 w-0 rounded-full"></div>
-    </div>
-  `,
-  icon: 'info',
-  confirmButtonText: 'Klik Iklan',
-  allowOutsideClick: false,
-}).then(() => {
-  window.open('https://linkiklan.com', '_blank');
+      title: 'Wajib Klik Iklan',
+      html: `
+        Klik tombol di bawah lalu tunggu 10 detik untuk dapat poin.<br><br>
+        <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+          <div id="progressIklan" class="bg-blue-500 h-4 w-0 rounded-full"></div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Klik Iklan',
+      allowOutsideClick: false,
+    }).then(() => {
+      window.open('https://linkiklan.com', '_blank');
 
-  Swal.fire({
-    title: 'Tunggu 10 Detik',
-    html: `
-      Jangan tutup halaman ini.<br><br>
-      <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
-        <div id="progressBarIklan" class="bg-green-500 h-4 w-0 rounded-full"></div>
-      </div>
-    `,
-    allowOutsideClick: false,
-    showConfirmButton: false,
-    didOpen: () => {
-      const bar = Swal.getHtmlContainer().querySelector('#progressBarIklan');
-      let waktu = 10;
-      const interval = setInterval(() => {
-        waktu--;
-        bar.style.width = `${(10 - waktu) * 10}%`;
-        if (waktu <= 0) {
-          clearInterval(interval);
-          Swal.close();
-          tambahPoin(7);
-          Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
-            captchaContainer.innerHTML = '';
-            buatCaptcha();
-          });
+      Swal.fire({
+        title: 'Tunggu 10 Detik',
+        html: `
+          Jangan tutup halaman ini.<br><br>
+          <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+            <div id="progressBarIklan" class="bg-green-500 h-4 w-0 rounded-full"></div>
+          </div>
+        `,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          const bar = Swal.getHtmlContainer().querySelector('#progressBarIklan');
+          let waktu = 10;
+          const interval = setInterval(() => {
+            waktu--;
+            bar.style.width = `${(10 - waktu) * 10}%`;
+            if (waktu <= 0) {
+              clearInterval(interval);
+              Swal.close();
+              tambahPoin(7);
+              lastIklanShown = captchaCounter;
+              localStorage.setItem('lastIklanShown', lastIklanShown);
+              Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
+                captchaContainer.innerHTML = '';
+                buatCaptcha();
+              });
+            }
+          }, 1000);
         }
-      }, 1000);
-    }
-  });
-});
+      });
+    });
   } else {
     captchaContainer.innerHTML = '';
     buatCaptcha();
@@ -346,7 +350,7 @@ function buatCaptcha() {
       saveSession();
       cekKunciTask();
 
-      if (captchaCounter % 10 === 0) {
+      if (captchaCounter % 10 === 0 && captchaCounter !== lastIklanShown) {
         Swal.fire({
           title: 'Wajib Klik Iklan',
           html: `
@@ -376,6 +380,8 @@ function buatCaptcha() {
         }).then(() => {
           window.open('https://linkiklan.com', '_blank');
           tambahPoin(7);
+          lastIklanShown = captchaCounter;
+          localStorage.setItem('lastIklanShown', lastIklanShown);
           Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
             buatCaptcha();
           });
