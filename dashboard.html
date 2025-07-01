@@ -242,39 +242,48 @@ function mulaiCaptcha() {
 
   if (captchaCounter > 0 && captchaCounter % 10 === 0) {
     Swal.fire({
-      title: 'Wajib Klik Iklan',
-      html: `
-        Klik iklan lalu tunggu 10 detik untuk dapat poin.<br><br>
-        <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
-          <div id="progressIklan" class="bg-blue-500 h-4 w-0 rounded-full"></div>
-        </div>
-      `,
-      icon: 'info',
-      confirmButtonText: 'Klik Iklan',
-      allowOutsideClick: false,
-      didOpen: () => {
-        const btn = Swal.getConfirmButton();
-        btn.disabled = true;
-        const bar = Swal.getHtmlContainer().querySelector('#progressIklan');
-        let waktu = 10;
-        const interval = setInterval(() => {
-          waktu--;
-          bar.style.width = `${(10 - waktu) * 10}%`;
-          if (waktu <= 0) {
-            clearInterval(interval);
-            btn.disabled = false;
-            btn.textContent = 'Dapatkan Poin';
-          }
-        }, 1000);
-      }
-    }).then(() => {
-      window.open('https://linkiklan.com', '_blank');
-      tambahPoin(7);
-      Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
-        captchaContainer.innerHTML = '';
-        buatCaptcha();
-      });
-    });
+  title: 'Wajib Klik Iklan',
+  html: `
+    Klik tombol di bawah lalu tunggu 10 detik untuk dapat poin.<br><br>
+    <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+      <div id="progressIklan" class="bg-blue-500 h-4 w-0 rounded-full"></div>
+    </div>
+  `,
+  icon: 'info',
+  confirmButtonText: 'Klik Iklan',
+  allowOutsideClick: false,
+}).then(() => {
+  window.open('https://linkiklan.com', '_blank');
+
+  Swal.fire({
+    title: 'Tunggu 10 Detik',
+    html: `
+      Jangan tutup halaman ini.<br><br>
+      <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+        <div id="progressBarIklan" class="bg-green-500 h-4 w-0 rounded-full"></div>
+      </div>
+    `,
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      const bar = Swal.getHtmlContainer().querySelector('#progressBarIklan');
+      let waktu = 10;
+      const interval = setInterval(() => {
+        waktu--;
+        bar.style.width = `${(10 - waktu) * 10}%`;
+        if (waktu <= 0) {
+          clearInterval(interval);
+          Swal.close();
+          tambahPoin(7);
+          Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
+            captchaContainer.innerHTML = '';
+            buatCaptcha();
+          });
+        }
+      }, 1000);
+    }
+  });
+});
   } else {
     captchaContainer.innerHTML = '';
     buatCaptcha();
