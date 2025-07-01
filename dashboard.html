@@ -33,8 +33,6 @@
     <div><b>Email:</b> <span id="pEmail"></span></div>
     <div><b>WhatsApp:</b> <span id="pWA"></span></div>
     <div><b>Poin:</b> <span id="pPoin">0</span></div>
-    <div><b>Task Hari Ini:</b> <span id="pSesi">0</span> / 3</div>
-<div id="jedaNotif" class="text-red-500 font-bold hidden"></div>
 
     <h2 class="font-bold mt-4">Ubah Password</h2>
     <input type="password" id="oldPassword" placeholder="Password Lama" class="w-full px-3 py-2 border rounded">
@@ -68,22 +66,17 @@ const pUsername = document.getElementById('pUsername');
 const pEmail = document.getElementById('pEmail');
 const pWA = document.getElementById('pWA');
 const pPoin = document.getElementById('pPoin');
-const pSesi = document.getElementById('pSesi');
-const jedaNotif = document.getElementById('jedaNotif');
 
 const btnUbahPassword = document.getElementById('btnUbahPassword');
 const btnIklanAwal = document.getElementById('btnIklanAwal');
 const taskArea = document.getElementById('taskArea');
 const captchaContainer = document.getElementById('captchaContainer');
-const btnKlaimPoin = document.getElementById('btnKlaimPoin');
-
-const AUDIO_BENAR = new Audio('https://cdn.pixabay.com/download/audio/2022/03/10/audio_9e0f6832f7.mp3');
-const AUDIO_SALAH = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_ea53cda789.mp3');
 
 let userData = {};
 let captchaCounter = 0;
 let captchaCorrect = 0;
-let sesi = parseInt(localStorage.getItem('sesiHariIni') || 0);
+let captchaAttempt = 0;
+let sessionCount = 0;
 let isTaskLocked = false;
 
 tabProfil.addEventListener('click', () => {
@@ -120,8 +113,6 @@ function loadUser() {
     pEmail.textContent = data.email;
     pWA.textContent = data.wa;
     pPoin.textContent = data.poin || 0;
-    pSesi.textContent = sesi;
-    cekTimerJeda();
   })
   .catch(() => showPopup('Gagal memuat data'))
   .finally(() => loadingOverlay.classList.add('hidden'));
@@ -130,9 +121,7 @@ function loadUser() {
 btnUbahPassword.addEventListener('click', () => {
   const oldPassword = document.getElementById('oldPassword').value;
   const newPassword = document.getElementById('newPassword').value;
-
-  if (oldPassword.length < 8) return showPopup("Password lama minimal 8 karakter");
-  if (newPassword.length < 8) return showPopup("Password baru minimal 8 karakter");
+  if (oldPassword.length < 8 || newPassword.length < 8) return showPopup("Password minimal 8 karakter");
 
   loadingOverlay.classList.remove('hidden');
   fetch(SHEET_URL + `?action=login&user=${encodeURIComponent(userData.username)}&password=${encodeURIComponent(oldPassword)}`)
@@ -154,150 +143,8 @@ btnUbahPassword.addEventListener('click', () => {
       showPopup('Password lama salah');
       loadingOverlay.classList.add('hidden');
     }
-  })
-  .catch(() => {
-    showPopup('Terjadi kesalahan');
-    loadingOverlay.classList.add('hidden');
   });
 });
-
-btnIklanAwal.addEventListener('click', () => {
-  if (isTaskLocked) return Swal.fire('Task Terkunci', 'Tunggu waktu jeda selesai.', 'info');
-  window.open('https://linkiklan.com', '_blank');
-  setTimeout(() => {
-    taskArea.classList.remove('hidden');
-    btnIklanAwal.classList.add('hidden');
-    mulaiCaptcha();
-  }, 2000);
-});
-
-function mulaiCaptcha() {
-  captchaCounter = 0;
-  captchaCorrect = 0;
-  captchaContainer.innerHTML = '';
-  buatCaptcha();
-}
-
-function buatCaptcha() {
-  if (captchaCounter >= 100) {
-    selesaiTask();
-    return;
-  }
-  
-  const val = Math.random().toString(36).substr(2, 5).toUpperCase();
-  const capEl = document.createElement('div');
-  capEl.innerHTML = `
-    <div class="border p-3 space-y-2">
-      <div class="font-bold">Captcha #${captchaCounter + 1}: ${val}</div>
-      <input type="text" class="w-full px-3 py-2 border rounded" placeholder="Masukkan Captcha">
-      <div class="w-full bg-gray-300 h-2 rounded">
-        <div class="h-2 bg-green-500 rounded" id="progressBar"></div>
-      </div>
-      <button class="w-full bg-blue-600 text-white py-2 rounded mt-2">Kirim</button>
-    </div>
-  `;
-  captchaContainer.appendChild(capEl);
-
-  const input = capEl.querySelector('input');
-  const btn = capEl.querySelector('button');
-  const bar = capEl.querySelector('#progressBar');
-
-  let waktu = 30;
-  const total = 30;
-  const timer = setInterval(() => {
-    waktu--;
-    bar.style.width = `${(total - waktu) / total * 100}%`;
-    if (waktu <= 0) {
-      clearInterval(timer);
-      captchaCounter++;
-      buatCaptcha();
-    }
-  }, 1000);
-
-  function cekJawaban() {
-    clearInterval(timer);
-    if (input.value.trim().toUpperCase() == val) {
-      captchaCorrect++;
-      tambahPoin(1);
-      AUDIO_BENAR.play();
-    } else {
-      AUDIO_SALAH.play();
-    }
-
-    captchaCounter++;
-    
-    if (captchaCounter % 5 === 0 && captchaCounter < 100) {
-      window.open('https://linkiklan.com', '_blank');
-      tambahPoin(7);
-    }
-    buatCaptcha();
-  }
-
-  btn.addEventListener('click', cekJawaban);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') cekJawaban(); });
-}
-
-function selesaiTask() {
-  const persen = (captchaCorrect / 100) * 100;
-  Swal.fire(`Selesai`, `Total Benar: ${captchaCorrect}/100 (${persen}%)`, 'info');
-
-  if (persen < 50) {
-    localStorage.setItem('lock24jam', Date.now());
-    Swal.fire('Gagal', 'Kurang dari 50% benar, task terkunci 24 jam.', 'error');
-  } else {
-    sesi++;
-    localStorage.setItem('sesiHariIni', sesi);
-    pSesi.textContent = sesi;
-
-    if (sesi >= 3) {
-      localStorage.setItem('lock24jam', Date.now());
-      Swal.fire('Selesai', 'Kamu sudah mencapai batas 3 sesi hari ini. Task terkunci 24 jam.', 'info');
-    } else {
-      localStorage.setItem('lastCaptchaTime', Date.now());
-      Swal.fire('Selesai', 'Tunggu 15 menit sebelum lanjut.', 'success');
-    }
-  }
-  window.location.reload();
-}
-
-function tambahPoin(poin) {
-  const total = (parseInt(userData.poin) || 0) + poin;
-  fetch(SHEET_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'tambahPoin', username: userData.username, poin: total })
-  })
-  .then(() => { userData.poin = total; pPoin.textContent = total; })
-  .catch(() => showPopup('Gagal tambah poin'));
-}
-
-function cekTimerJeda() {
-  const last = localStorage.getItem('lastCaptchaTime');
-  const lock = localStorage.getItem('lock24jam');
-
-  if (last && Date.now() - last < 15 * 60 * 1000) {
-    hitungMundur(15 * 60 * 1000 - (Date.now() - last), 'Tunggu sebelum lanjut task');
-  }
-  if (lock && Date.now() - lock < 24 * 60 * 60 * 1000) {
-    hitungMundur(24 * 60 * 60 * 1000 - (Date.now() - lock), 'Task terkunci, tunggu 24 jam');
-    isTaskLocked = true;
-  }
-}
-
-function hitungMundur(ms, pesan) {
-  jedaNotif.classList.remove('hidden');
-  const interval = setInterval(() => {
-    ms -= 1000;
-    const jam = Math.floor(ms / 3600000);
-    const menit = Math.floor((ms % 3600000) / 60000);
-    const detik = Math.floor((ms % 60000) / 1000);
-    jedaNotif.textContent = `${pesan}: ${jam}j ${menit}m ${detik}d`;
-
-    if (ms <= 0) {
-      clearInterval(interval);
-      window.location.reload();
-    }
-  }, 1000);
-}
 
 document.getElementById('btnLogout').addEventListener('click', () => {
   Swal.fire({
@@ -310,11 +157,134 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   }).then(result => {
     if (result.isConfirmed) {
       localStorage.removeItem('username');
-      Swal.fire('Logout berhasil', '', 'success');
+      Swal.fire('Berhasil Logout', '', 'success');
       setTimeout(() => window.location.href = 'index.html', 1500);
     }
   });
 });
+
+btnIklanAwal.addEventListener('click', () => {
+  window.open('https://linkiklan.com', '_blank');
+  setTimeout(() => mulaiCaptcha(), 2000);
+});
+
+function mulaiCaptcha() {
+  if (isTaskLocked) return showPopup('Task terkunci, coba lagi besok.');
+
+  if (sessionCount >= 3) {
+    showPopup('Kamu sudah menyelesaikan 3 sesi hari ini. Coba lagi besok.');
+    return;
+  }
+
+  const lastTime = localStorage.getItem('lastCaptchaTime');
+  if (lastTime && Date.now() - lastTime < 15 * 60 * 1000) {
+    const sisa = Math.ceil((15 * 60 * 1000 - (Date.now() - lastTime)) / 1000);
+    return showPopup(`Tunggu ${sisa} detik sebelum mulai task lagi.`);
+  }
+
+  taskArea.classList.remove('hidden');
+  btnIklanAwal.classList.add('hidden');
+  captchaCounter = 0;
+  captchaCorrect = 0;
+  captchaAttempt = 0;
+  captchaContainer.innerHTML = '';
+  buatCaptcha();
+}
+
+function buatCaptcha() {
+  if (captchaCounter >= 100) {
+    sessionCount++;
+    localStorage.setItem('lastCaptchaTime', Date.now());
+    Swal.fire('Task selesai', 'Tunggu 15 menit sebelum task berikutnya.', 'success');
+    return;
+  }
+
+  if (captchaCounter > 0 && captchaCounter % 5 === 0) {
+    Swal.fire({
+      title: 'Klik Iklan Dulu',
+      icon: 'info',
+      confirmButtonText: 'Klik Iklan'
+    }).then(() => {
+      window.open('https://linkiklan.com', '_blank');
+      tambahPoin(7);
+    });
+  }
+
+  const val = Math.floor(1000 + Math.random() * 9000);
+  captchaContainer.innerHTML = `
+    <div class="border p-3 space-y-2">
+      <div class="flex justify-between items-center">
+        <span>Captcha #${captchaCounter + 1}</span>
+        <div class="w-1/2 bg-gray-200 rounded-full">
+          <div id="progressBar" class="bg-blue-500 h-2 w-0"></div>
+        </div>
+      </div>
+      <div class="text-xl font-bold text-center">${val}</div>
+      <input id="captchaInput" class="w-full px-3 py-2 border rounded" placeholder="Isi Captcha">
+      <button id="submitCaptcha" class="w-full bg-blue-600 text-white py-2 mt-2 rounded">Submit</button>
+    </div>
+  `;
+
+  let timeLeft = 30;
+  const bar = document.getElementById('progressBar');
+  const input = document.getElementById('captchaInput');
+  const submit = document.getElementById('submitCaptcha');
+  input.focus();
+
+  const interval = setInterval(() => {
+    timeLeft--;
+    bar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      captchaCounter++;
+      captchaAttempt++;
+      cekKunciTask();
+      buatCaptcha();
+    }
+  }, 1000);
+
+  function validate() {
+    clearInterval(interval);
+    captchaCounter++;
+    captchaAttempt++;
+    if (input.value.trim() == val) {
+      captchaCorrect++;
+      tambahPoin(1);
+    }
+    cekKunciTask();
+    buatCaptcha();
+  }
+
+  submit.addEventListener('click', validate);
+  input.addEventListener('keypress', e => {
+    if (e.key === 'Enter') validate();
+  });
+}
+
+function tambahPoin(jumlah) {
+  const poinBaru = (parseInt(userData.poin) || 0) + jumlah;
+  loadingOverlay.classList.remove('hidden');
+  fetch(SHEET_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'tambahPoin', username: userData.username, poin: poinBaru })
+  })
+  .then(() => {
+    userData.poin = poinBaru;
+    pPoin.textContent = poinBaru;
+    showPopup(`Poin bertambah +${jumlah}`);
+  })
+  .catch(() => showPopup('Gagal menambah poin'))
+  .finally(() => loadingOverlay.classList.add('hidden'));
+}
+
+function cekKunciTask() {
+  const persen = Math.round((captchaCorrect / captchaAttempt) * 100);
+  if (captchaAttempt >= 10 && persen < 50) {
+    isTaskLocked = true;
+    Swal.fire('Task Dikunci', 'Tingkat keberhasilan kurang dari 50%. Coba lagi dalam 24 jam.', 'error');
+    setTimeout(() => window.location.reload(), 2000);
+  }
+}
 
 loadUser();
 </script>
