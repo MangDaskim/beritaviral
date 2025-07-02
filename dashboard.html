@@ -477,13 +477,18 @@ function cekKunciTask() {
   }
 }
 
-  const tabWithdraw = document.getElementById('tabWithdraw');
+const tabWithdraw = document.getElementById('tabWithdraw');
 const withdrawSection = document.getElementById('withdrawSection');
 const withdrawPoin = document.getElementById('withdrawPoin');
 const estimasiRupiah = document.getElementById('estimasiRupiah');
 const metodeWithdraw = document.getElementById('metodeWithdraw');
 const nomorTujuan = document.getElementById('nomorTujuan');
 const btnWithdrawSemua = document.getElementById('btnWithdrawSemua');
+
+// Fungsi untuk format poin menjadi format ribuan
+function formatPoin(poin) {
+  return poin.toLocaleString('id-ID'); // Menggunakan format Indonesia
+}
 
 tabWithdraw.addEventListener('click', () => {
   profilSection.classList.add('hidden');
@@ -495,14 +500,19 @@ tabWithdraw.addEventListener('click', () => {
   tabWithdraw.classList.add('bg-indigo-100');
 
   const poin = parseFloat(userData.poin) || 0;
+  // Menampilkan poin dengan format ribuan
   withdrawPoin.textContent = formatPoin(poin);
-  estimasiRupiah.textContent = `Rp${(poin / 100).toFixed(2).toLocaleString('id-ID')}`;
+  
+  // Konversi poin menjadi rupiah (100 poin = 1 rupiah) dan format ribuan
+  const rupiah = (poin / 100).toFixed(2);
+  estimasiRupiah.textContent = `Rp${parseFloat(rupiah).toLocaleString('id-ID')}`;
 });
 
 btnWithdrawSemua.addEventListener('click', () => {
   const metode = metodeWithdraw.value.trim();
   const tujuan = nomorTujuan.value.trim();
   const poin = parseFloat(userData.poin) || 0;
+  // Konversi poin menjadi rupiah (100 poin = 1 rupiah) dan format ribuan
   const rupiah = (poin / 100).toFixed(2);
 
   if (poin <= 0) return showPopup('Poin kamu masih 0');
@@ -515,7 +525,7 @@ btnWithdrawSemua.addEventListener('click', () => {
       <b>Metode:</b> ${metode}<br>
       <b>Tujuan:</b> ${tujuan}<br>
       <b>Poin:</b> ${formatPoin(poin)}<br>
-      <b>Rupiah:</b> Rp${(rupiah).toLocaleString('id-ID')}<br><br>
+      <b>Rupiah:</b> Rp${parseFloat(rupiah).toLocaleString('id-ID')}<br><br>
       Kamu yakin ingin withdraw semua poin?
     `,
     icon: 'question',
