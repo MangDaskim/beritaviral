@@ -103,15 +103,19 @@ let lastIklanShown = parseInt(localStorage.getItem('lastIklanShown')) || 0;
 tabProfil.addEventListener('click', () => {
   profilSection.classList.remove('hidden');
   taskSection.classList.add('hidden');
+  withdrawSection.classList.add('hidden'); // Tambahkan ini
   tabProfil.classList.add('bg-indigo-100');
   tabTask.classList.remove('bg-indigo-100');
+  tabWithdraw.classList.remove('bg-indigo-100'); // Opsional biar tab active lebih konsisten
 });
 
 tabTask.addEventListener('click', () => {
   profilSection.classList.add('hidden');
   taskSection.classList.remove('hidden');
+  withdrawSection.classList.add('hidden'); // Tambahkan ini
   tabProfil.classList.remove('bg-indigo-100');
   tabTask.classList.add('bg-indigo-100');
+  tabWithdraw.classList.remove('bg-indigo-100'); // Opsional biar tab active lebih konsisten
 });
 
 function showPopup(msg) {
