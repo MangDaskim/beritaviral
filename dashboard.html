@@ -323,10 +323,10 @@ function mulaiCaptcha() {
             if (waktu <= 0) {
               clearInterval(interval);
               Swal.close();
-              tambahPoin(7);
+              tambahPoin(700);
               lastIklanShown = captchaCounter;
               localStorage.setItem('lastIklanShown', lastIklanShown);
-              Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
+              Swal.fire('Poin Bertambah +700', 'Lanjut ke task berikutnya.', 'success').then(() => {
                 captchaContainer.innerHTML = '';
                 buatCaptcha();
               });
@@ -434,7 +434,7 @@ function buatCaptcha() {
           });
         });
       } else {
-        tambahPoin(1);
+        tambahPoin(100);
         buatCaptcha();
       }
     } else {
