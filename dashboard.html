@@ -137,7 +137,7 @@ function loadUser() {
     pUsername.textContent = data.username;
     pEmail.textContent = data.email;
     pWA.textContent = data.wa;
-    pPoin.textContent = data.poin || 0;
+    pPoin.textContent = formatAngka(data.poin || 0);
   })
   .catch(() => showPopup('Gagal memuat data'))
   .finally(() => loadingOverlay.classList.add('hidden'));
@@ -438,7 +438,7 @@ function tambahPoin(jumlah) {
   })
   .then(() => {
     userData.poin = poinBaru;
-    pPoin.textContent = poinBaru;
+    pPoin.textContent = formatAngka(poinBaru);
     showPopup(`Poin bertambah +${jumlah}`);
   })
   .catch(() => showPopup('Gagal menambah poin'))
@@ -472,52 +472,50 @@ tabWithdraw.addEventListener('click', () => {
   tabWithdraw.classList.add('bg-indigo-100');
 
   const poin = parseFloat(userData.poin) || 0;
-  withdrawPoin.textContent = poin;
-  estimasiRupiah.textContent = `Rp${(poin / 100).toFixed(2)}`;
-});
+  withdrawPoin.textContent = formatAngka(poin);
+  estimasiRupiah.textContent = `Rp${formatAngka(Math.floor(poin / 100))}`;
 
 btnWithdrawSemua.addEventListener('click', () => {
   const metode = metodeWithdraw.value.trim();
   const tujuan = nomorTujuan.value.trim();
   const poin = parseFloat(userData.poin) || 0;
-  const rupiah = (poin / 100).toFixed(2);
-
+  const rupiah = Math.floor(poin / 100);
+  
   if (poin <= 0) return showPopup('Poin kamu masih 0');
   if (!metode) return showPopup('Pilih metode pengiriman');
   if (!tujuan) return showPopup('Masukkan nomor tujuan');
-
+  
   Swal.fire({
-    title: 'Konfirmasi Withdraw',
-    html: `
-      <b>Metode:</b> ${metode}<br>
-      <b>Tujuan:</b> ${tujuan}<br>
-      <b>Poin:</b> ${poin}<br>
-      <b>Rupiah:</b> Rp${rupiah}<br><br>
-      Kamu yakin ingin withdraw semua poin?
-    `,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Withdraw',
-    cancelButtonText: 'Batal'
+  title: 'Konfirmasi Withdraw',
+  html: `
+  <b>Metode:</b> ${metode}<br>
+  <b>Tujuan:</b> ${tujuan}<br>
+  <b>Poin:</b> ${formatAngka(poin)}<br>
+  <b>Rupiah:</b> Rp${formatAngka(rupiah)}<br><br>
+  Kamu yakin ingin withdraw semua poin?
+  `,
+  icon: 'question',
+  showCancelButton: true,
+  confirmButtonText: 'Ya, Withdraw',
+  cancelButtonText: 'Batal'
   }).then(res => {
-    if (res.isConfirmed) {
-      prosesWithdraw(poin, rupiah, metode, tujuan);
-    }
+  if (res.isConfirmed) {
+  prosesWithdraw(poin, rupiah, metode, tujuan);
+  }
   });
-});
 
 function prosesWithdraw(poin, rupiah, metode, tujuan) {
   loadingOverlay.classList.remove('hidden');
 
   const data = {
-    action: 'withdraw',
-    nama: userData.nama,
-    username: userData.username,
-    wa: userData.wa,
-    poin: poin,
-    rupiah: rupiah,
-    metode: metode,
-    tujuan: tujuan
+  action: 'withdraw',
+  nama: userData.nama,
+  username: userData.username,
+  wa: userData.wa,
+  poin: poin,
+  rupiah: rupiah,
+  metode: metode,
+  tujuan: tujuan
   };
 
   fetch(SHEET_URL, {
