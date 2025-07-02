@@ -54,8 +54,20 @@
   <h2 class="font-bold text-center">Tukar Semua Poin ke Rupiah</h2>
   <div><b>Poin Kamu:</b> <span id="withdrawPoin">0</span></div>
   <div><b>Estimasi Rupiah:</b> <span id="estimasiRupiah">Rp0</span></div>
-  <button id="btnWithdrawSemua" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Tukar Semua Poin</button>
-  </div>
+
+  <label class="block font-bold mt-2">Pilih Metode:</label>
+  <select id="metodeWithdraw" class="w-full border px-3 py-2 rounded">
+    <option value="">-- Pilih --</option>
+    <option value="Dana">Dana</option>
+    <option value="OVO">OVO</option>
+    <option value="ShopeePay">ShopeePay</option>
+    <option value="Rekening Bank">Rekening Bank</option>
+  </select>
+
+  <input type="text" id="nomorTujuan" class="w-full border px-3 py-2 rounded mt-2" placeholder="Masukkan Nomor Tujuan">
+
+  <button id="btnWithdrawSemua" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 mt-2">Tukar Semua Poin</button>
+</div>
 </div>
 
 <script>
@@ -436,6 +448,89 @@ function cekKunciTask() {
     Swal.fire('Task Dikunci', 'Tingkat keberhasilan kurang dari 50%. Coba lagi dalam 24 jam.', 'error');
     setTimeout(() => window.location.reload(), 2000);
   }
+}
+
+  const tabWithdraw = document.getElementById('tabWithdraw');
+const withdrawSection = document.getElementById('withdrawSection');
+const withdrawPoin = document.getElementById('withdrawPoin');
+const estimasiRupiah = document.getElementById('estimasiRupiah');
+const metodeWithdraw = document.getElementById('metodeWithdraw');
+const nomorTujuan = document.getElementById('nomorTujuan');
+const btnWithdrawSemua = document.getElementById('btnWithdrawSemua');
+
+tabWithdraw.addEventListener('click', () => {
+  profilSection.classList.add('hidden');
+  taskSection.classList.add('hidden');
+  withdrawSection.classList.remove('hidden');
+
+  tabProfil.classList.remove('bg-indigo-100');
+  tabTask.classList.remove('bg-indigo-100');
+  tabWithdraw.classList.add('bg-indigo-100');
+
+  const poin = parseFloat(userData.poin) || 0;
+  withdrawPoin.textContent = poin;
+  estimasiRupiah.textContent = `Rp${(poin / 100).toFixed(2)}`;
+});
+
+btnWithdrawSemua.addEventListener('click', () => {
+  const metode = metodeWithdraw.value.trim();
+  const tujuan = nomorTujuan.value.trim();
+  const poin = parseFloat(userData.poin) || 0;
+  const rupiah = (poin / 100).toFixed(2);
+
+  if (poin <= 0) return showPopup('Poin kamu masih 0');
+  if (!metode) return showPopup('Pilih metode pengiriman');
+  if (!tujuan) return showPopup('Masukkan nomor tujuan');
+
+  Swal.fire({
+    title: 'Konfirmasi Withdraw',
+    html: `
+      <b>Metode:</b> ${metode}<br>
+      <b>Tujuan:</b> ${tujuan}<br>
+      <b>Poin:</b> ${poin}<br>
+      <b>Rupiah:</b> Rp${rupiah}<br><br>
+      Kamu yakin ingin withdraw semua poin?
+    `,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Withdraw',
+    cancelButtonText: 'Batal'
+  }).then(res => {
+    if (res.isConfirmed) {
+      prosesWithdraw(poin, rupiah, metode, tujuan);
+    }
+  });
+});
+
+function prosesWithdraw(poin, rupiah, metode, tujuan) {
+  loadingOverlay.classList.remove('hidden');
+
+  const data = {
+    action: 'withdraw',
+    nama: userData.nama,
+    username: userData.username,
+    wa: userData.wa,
+    poin: poin,
+    rupiah: rupiah,
+    metode: metode,
+    tujuan: tujuan
+  };
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    showPopup('Withdraw berhasil dikirim ke admin');
+    userData.poin = 0;
+    pPoin.textContent = 0;
+    withdrawPoin.textContent = 0;
+    estimasiRupiah.textContent = 'Rp0';
+    nomorTujuan.value = '';
+    metodeWithdraw.value = '';
+  })
+  .catch(() => showPopup('Gagal mengirim withdraw'))
+  .finally(() => loadingOverlay.classList.add('hidden'));
 }
 
 loadUser();
