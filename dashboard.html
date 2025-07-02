@@ -434,7 +434,9 @@ function buatCaptcha() {
           });
         });
       } else {
-        tambahPoin(100);
+        const poinRandom = Math.floor(Math.random() * 101) + 100; // 100 - 200
+        tambahPoin(poinRandom);
+
         buatCaptcha();
       }
     } else {
