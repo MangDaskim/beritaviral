@@ -87,6 +87,11 @@ const pEmail = document.getElementById('pEmail');
 const pWA = document.getElementById('pWA');
 const pPoin = document.getElementById('pPoin');
 
+// Fungsi untuk format poin menjadi format ribuan
+function formatPoin(poin) {
+  return poin.toLocaleString('id-ID'); // Menggunakan format Indonesia
+}
+
 const btnUbahPassword = document.getElementById('btnUbahPassword');
 const btnIklanAwal = document.getElementById('btnIklanAwal');
 const taskArea = document.getElementById('taskArea');
@@ -137,13 +142,31 @@ function loadUser() {
     pUsername.textContent = data.username;
     pEmail.textContent = data.email;
     pWA.textContent = data.wa;
-    pPoin.textContent = data.poin || 0;
+    // Menampilkan poin dengan format yang sesuai
+    pPoin.textContent = formatPoin(data.poin || 0);
   })
   .catch(() => showPopup('Gagal memuat data'))
   .finally(() => loadingOverlay.classList.add('hidden'));
 }
 
-btnUbahPassword.addEventListener('click', () => {
+// Tambahkan formatPoin pada bagian ini untuk menampilkan poin yang baru ditambah
+function tambahPoin(jumlah) {
+  const poinBaru = (parseInt(userData.poin) || 0) + jumlah;
+  loadingOverlay.classList.remove('hidden');
+  fetch(SHEET_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'tambahPoin', username: userData.username, poin: poinBaru })
+  })
+  .then(() => {
+    userData.poin = poinBaru;
+    // Menampilkan poin yang baru dalam format yang benar
+    pPoin.textContent = formatPoin(poinBaru);
+    showPopup(`Poin bertambah +${jumlah}`);
+  })
+  .catch(() => showPopup('Gagal menambah poin'))
+  .finally(() => loadingOverlay.classList.add('hidden'));
+}
+  btnUbahPassword.addEventListener('click', () => {
   const oldPassword = document.getElementById('oldPassword').value;
   const newPassword = document.getElementById('newPassword').value;
   if (oldPassword.length < 8 || newPassword.length < 8) return showPopup("Password minimal 8 karakter");
