@@ -6,7 +6,7 @@
   <title>Login & Register</title>
   <script>
   // Cek apakah sudah login
-  if (localStorage.getItem('username')) {
+  if (sessionStorage.getItem('username')) {
     window.location.href = 'dashboard.html';
   }
 </script>
@@ -157,7 +157,7 @@ loginForm.addEventListener('submit', e => {
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-  localStorage.setItem('username', user); // Simpan username ke localStorage
+  sessionStorage.setItem('username', user); // Simpan username ke localStorage
   setTimeout(() => window.location.href = 'dashboard.html', 1500);
 } else {
       loadingOverlay.classList.add('hidden');
