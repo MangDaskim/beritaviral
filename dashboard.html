@@ -150,7 +150,7 @@ function showPopup(msg) {
 
 function loadUser() {
   loadingOverlay.classList.remove('hidden');
-  const username = localStorage.getItem('username');
+  const username = sessionStorage.getItem('username');
   if (!username) return window.location.href = 'index.html';
 
   fetch(SHEET_URL + `?action=detail&username=${encodeURIComponent(username)}`)
@@ -224,7 +224,7 @@ document.getElementById('btnLogout').addEventListener('click', () => {
     cancelButtonText: 'Batal'
   }).then(result => {
     if (result.isConfirmed) {
-      localStorage.removeItem('username');
+      sessionStorage.removeItem('username');
       localStorage.removeItem('captchaSession');
       localStorage.removeItem('lastIklanShown');
       Swal.fire('Berhasil Logout', '', 'success');
