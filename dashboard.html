@@ -380,39 +380,6 @@ function buatCaptcha() {
     val += chars.charAt(Math.floor(Math.random() * chars.length));
   }
 
-  // Membuat gambar CAPTCHA dengan canvas
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const width = 150;
-  const height = 50;
-  canvas.width = width;
-  canvas.height = height;
-
-  // Gambar latar belakang
-  ctx.fillStyle = '#f0f0f0';
-  ctx.fillRect(0, 0, width, height);
-
-  // Menambahkan teks CAPTCHA ke dalam gambar
-  ctx.font = '30px Arial';
-  ctx.fillStyle = '#000';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(val, width / 2, height / 2);
-
-  // Menambahkan sedikit noise (garis acak) untuk meningkatkan keamanan CAPTCHA
-  for (let i = 0; i < 10; i++) {
-    ctx.beginPath();
-    ctx.moveTo(Math.random() * width, Math.random() * height);
-    ctx.lineTo(Math.random() * width, Math.random() * height);
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  // Pastikan captchaContainer tidak tersembunyi
-  captchaContainer.innerHTML = '';  // Kosongkan sebelumnya jika ada konten lama
-  captchaContainer.style.display = 'block';  // Pastikan tampil
-
   captchaContainer.innerHTML = `
     <div class="border p-3 space-y-2">
       <div class="flex justify-between items-center">
@@ -421,32 +388,44 @@ function buatCaptcha() {
           <div id="progressBar" class="bg-blue-500 h-2 w-0"></div>
         </div>
       </div>
-      <div class="text-center">
-        <!-- Memasukkan canvas -->
-        <canvas id="captchaCanvas" width="${width}" height="${height}"></canvas>
-      </div>
+      <canvas id="captchaCanvas" class="w-full h-24 border bg-white"></canvas>
       <input id="captchaInput" class="w-full px-3 py-2 border rounded" placeholder="Isi Captcha">
       <button id="submitCaptcha" class="w-full bg-blue-600 text-white py-2 mt-2 rounded">Submit</button>
     </div>
   `;
 
-  // Menambahkan gambar ke canvas
-  const captchaCanvas = document.getElementById('captchaCanvas');
+  const canvas = document.getElementById('captchaCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 200;
+  canvas.height = 40;
+
+  // Gambar teks captcha
+  ctx.font = '24px Arial';
+  ctx.fillStyle = '#333';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
+  ctx.fillText(val, canvas.width / 2, canvas.height / 2);
+
+  // Menggambar noise (garis-garis atau titik acak untuk menghindari OCR)
+  for (let i = 0; i < 30; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+    ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Menyimpan nilai captcha yang benar
+  captchaCorrectAnswer = val;
+
+  let timeLeft = 30;
+  const bar = document.getElementById('progressBar');
   const input = document.getElementById('captchaInput');
   const submit = document.getElementById('submitCaptcha');
   input.focus();
 
-  // Menambahkan teks ke canvas secara manual
-  const canvasContext = captchaCanvas.getContext('2d');
-  canvasContext.font = '30px Arial';
-  canvasContext.fillStyle = '#000';
-  canvasContext.textAlign = 'center';
-  canvasContext.textBaseline = 'middle';
-  canvasContext.fillText(val, width / 2, height / 2);
-
-  // Progress bar countdown
-  let timeLeft = 30;
-  const bar = document.getElementById('progressBar');
   const interval = setInterval(() => {
     timeLeft--;
     bar.style.width = `${(30 - timeLeft) / 30 * 100}%`;
@@ -462,13 +441,55 @@ function buatCaptcha() {
   function validate() {
     clearInterval(interval);
     captchaAttempt++;
-    if (input.value.trim() === val) {
+    if (input.value.trim() === captchaCorrectAnswer) {
       captchaCorrect++;
       captchaCounter++;
       saveSession();
       saveCaptchaCounter(); // Simpan jumlah captcha yang benar ke Google Sheets
       cekKunciTask();
-      buatCaptcha();
+
+      if (captchaCounter % 10 === 0 && captchaCounter !== lastIklanShown) {
+        Swal.fire({
+          title: 'Wajib Klik Iklan',
+          html: `
+            Klik iklan lalu tunggu 10 detik untuk dapat poin.<br><br>
+            <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
+              <div id="progressIklan" class="bg-blue-500 h-4 w-0 rounded-full"></div>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonText: 'Klik Iklan',
+          allowOutsideClick: false,
+          didOpen: () => {
+            const btn = Swal.getConfirmButton();
+            btn.disabled = true;
+            const bar = Swal.getHtmlContainer().querySelector('#progressIklan');
+            let waktu = 10;
+            const interval = setInterval(() => {
+              waktu--;
+              bar.style.width = `${(10 - waktu) * 10}%`;
+              if (waktu <= 0) {
+                clearInterval(interval);
+                btn.disabled = false;
+                btn.textContent = 'Dapatkan Poin';
+              }
+            }, 1000);
+          }
+        }).then(() => {
+          window.open('https://linkiklan.com', '_blank');
+          tambahPoin(7);
+          lastIklanShown = captchaCounter;
+          localStorage.setItem('lastIklanShown', lastIklanShown);
+          Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
+            buatCaptcha();
+          });
+        });
+      } else {
+        const poinRandom = Math.floor(Math.random() * 101) + 100; // 100 - 200
+        tambahPoin(poinRandom);
+
+        buatCaptcha();
+      }
     } else {
       Swal.fire('Captcha Salah', 'Captcha diganti, silakan coba lagi.', 'error').then(() => {
         cekKunciTask();
