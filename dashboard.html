@@ -45,7 +45,7 @@
   <div id="taskSection" class="space-y-4 hidden">
     <button id="btnIklanAwal" class="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600">Klik Iklan untuk Mulai Task</button>
     <div id="taskArea" class="hidden space-y-3">
-      <p class="text-center">Isi 100 Captcha, tiap Captcha 30 detik</p>
+      <p class="text-center">Isi 100 Captcha, tiap berhasil memasukan captcha dengan benar akan mendapatkan poin 100-200.<p>
       <div id="captchaContainer" class="space-y-2"></div>
     </div>
   </div>
@@ -448,46 +448,46 @@ function buatCaptcha() {
       saveCaptchaCounter(); // Simpan jumlah captcha yang benar ke Google Sheets
       cekKunciTask();
 
+      // Setiap kali captchaCounter mencapai kelipatan 10, tampilkan tombol iklan
       if (captchaCounter % 10 === 0 && captchaCounter !== lastIklanShown) {
+        // Tampilkan tombol iklan
         Swal.fire({
-          title: 'Wajib Klik Iklan',
+          title: 'Klik Iklan untuk Melanjutkan',
           html: `
-            Klik iklan lalu tunggu 10 detik untuk dapat poin.<br><br>
+            Klik tombol di bawah ini untuk melanjutkan.<br><br>
+            <button id="btnIklan" class="bg-green-500 text-white py-2 px-4 rounded mt-2">Klik Iklan</button>
             <div class="w-full bg-gray-300 rounded-full h-4 mt-2">
               <div id="progressIklan" class="bg-blue-500 h-4 w-0 rounded-full"></div>
             </div>
           `,
           icon: 'info',
-          confirmButtonText: 'Klik Iklan',
+          showConfirmButton: false,
           allowOutsideClick: false,
-          didOpen: () => {
-            const btn = Swal.getConfirmButton();
-            btn.disabled = true;
-            const bar = Swal.getHtmlContainer().querySelector('#progressIklan');
+        }).then(() => {
+          // Tambahkan event listener untuk tombol iklan
+          document.getElementById('btnIklan').addEventListener('click', () => {
+            // Mulai progress bar hanya setelah tombol iklan diklik
             let waktu = 10;
-            const interval = setInterval(() => {
+            const bar = document.getElementById('progressIklan');
+            const intervalIklan = setInterval(() => {
               waktu--;
               bar.style.width = `${(10 - waktu) * 10}%`;
               if (waktu <= 0) {
-                clearInterval(interval);
-                btn.disabled = false;
-                btn.textContent = 'Dapatkan Poin';
+                clearInterval(intervalIklan);
+                tambahPoin(7);
+                lastIklanShown = captchaCounter;
+                localStorage.setItem('lastIklanShown', lastIklanShown);
+                Swal.fire('Poin Bertambah +7', 'Lanjutkan mengisi captcha.', 'success').then(() => {
+                  // Setelah 10 detik, buat captcha baru
+                  buatCaptcha();
+                });
               }
             }, 1000);
-          }
-        }).then(() => {
-          window.open('https://linkiklan.com', '_blank');
-          tambahPoin(700);
-          lastIklanShown = captchaCounter;
-          localStorage.setItem('lastIklanShown', lastIklanShown);
-          Swal.fire('Poin Bertambah +700', 'Lanjut ke task berikutnya.', 'success').then(() => {
-            buatCaptcha();
           });
         });
       } else {
         const poinRandom = Math.floor(Math.random() * 101) + 100; // 100 - 200
         tambahPoin(poinRandom);
-
         buatCaptcha();
       }
     } else {
