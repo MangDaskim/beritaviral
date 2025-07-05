@@ -409,6 +409,10 @@ function buatCaptcha() {
     ctx.stroke();
   }
 
+  // Pastikan captchaContainer tidak tersembunyi
+  captchaContainer.innerHTML = '';  // Kosongkan sebelumnya jika ada konten lama
+  captchaContainer.style.display = 'block';  // Pastikan tampil
+
   captchaContainer.innerHTML = `
     <div class="border p-3 space-y-2">
       <div class="flex justify-between items-center">
@@ -418,6 +422,7 @@ function buatCaptcha() {
         </div>
       </div>
       <div class="text-center">
+        <!-- Memasukkan canvas -->
         <canvas id="captchaCanvas" width="${width}" height="${height}"></canvas>
       </div>
       <input id="captchaInput" class="w-full px-3 py-2 border rounded" placeholder="Isi Captcha">
@@ -425,11 +430,21 @@ function buatCaptcha() {
     </div>
   `;
 
+  // Menambahkan gambar ke canvas
   const captchaCanvas = document.getElementById('captchaCanvas');
   const input = document.getElementById('captchaInput');
   const submit = document.getElementById('submitCaptcha');
   input.focus();
 
+  // Menambahkan teks ke canvas secara manual
+  const canvasContext = captchaCanvas.getContext('2d');
+  canvasContext.font = '30px Arial';
+  canvasContext.fillStyle = '#000';
+  canvasContext.textAlign = 'center';
+  canvasContext.textBaseline = 'middle';
+  canvasContext.fillText(val, width / 2, height / 2);
+
+  // Progress bar countdown
   let timeLeft = 30;
   const bar = document.getElementById('progressBar');
   const interval = setInterval(() => {
