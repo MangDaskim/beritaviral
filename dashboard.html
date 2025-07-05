@@ -477,10 +477,10 @@ function buatCaptcha() {
           }
         }).then(() => {
           window.open('https://linkiklan.com', '_blank');
-          tambahPoin(7);
+          tambahPoin(700);
           lastIklanShown = captchaCounter;
           localStorage.setItem('lastIklanShown', lastIklanShown);
-          Swal.fire('Poin Bertambah +7', 'Lanjut ke task berikutnya.', 'success').then(() => {
+          Swal.fire('Poin Bertambah +700', 'Lanjut ke task berikutnya.', 'success').then(() => {
             buatCaptcha();
           });
         });
@@ -557,7 +557,7 @@ tabWithdraw.addEventListener('click', () => {
   withdrawPoin.textContent = formatPoin(poin);
   
   // Konversi poin menjadi rupiah (100 poin = 1 rupiah) dan format ribuan
-  const rupiah = (poin / 50).toFixed(2);
+  const rupiah = (poin / 20).toFixed(2);
   estimasiRupiah.textContent = `Rp${parseFloat(rupiah).toLocaleString('id-ID')}`;
 });
 
@@ -566,7 +566,7 @@ btnWithdrawSemua.addEventListener('click', () => {
   const tujuan = nomorTujuan.value.trim();
   const poin = parseFloat(userData.poin) || 0;
   // Konversi poin menjadi rupiah (100 poin = 1 rupiah) dan format ribuan
-  const rupiah = (poin / 50).toFixed(2);
+  const rupiah = (poin / 20).toFixed(2);
 
   if (poin <= 0) return showPopup('Poin kamu masih 0');
   if (!metode) return showPopup('Pilih metode pengiriman');
