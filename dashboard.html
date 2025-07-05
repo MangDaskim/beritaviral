@@ -557,7 +557,7 @@ tabWithdraw.addEventListener('click', () => {
   withdrawPoin.textContent = formatPoin(poin);
   
   // Konversi poin menjadi rupiah (100 poin = 1 rupiah) dan format ribuan
-  const rupiah = (poin / 20).toFixed(2);
+  const rupiah = (poin / 50).toFixed(2);
   estimasiRupiah.textContent = `Rp${parseFloat(rupiah).toLocaleString('id-ID')}`;
 });
 
@@ -566,7 +566,7 @@ btnWithdrawSemua.addEventListener('click', () => {
   const tujuan = nomorTujuan.value.trim();
   const poin = parseFloat(userData.poin) || 0;
   // Konversi poin menjadi rupiah (100 poin = 1 rupiah) dan format ribuan
-  const rupiah = (poin / 20).toFixed(2);
+  const rupiah = (poin / 50).toFixed(2);
 
   if (poin <= 0) return showPopup('Poin kamu masih 0');
   if (!metode) return showPopup('Pilih metode pengiriman');
