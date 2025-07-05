@@ -450,7 +450,7 @@ function buatCaptcha() {
 
       // Setiap kali captchaCounter mencapai kelipatan 10, tampilkan tombol iklan
       if (captchaCounter % 10 === 0 && captchaCounter !== lastIklanShown) {
-        // Tampilkan tombol iklan
+        // Tampilkan tombol iklan dan pastikan tombol dapat diklik
         Swal.fire({
           title: 'Klik Iklan untuk Melanjutkan',
           html: `
@@ -463,27 +463,28 @@ function buatCaptcha() {
           icon: 'info',
           showConfirmButton: false,
           allowOutsideClick: false,
-        }).then(() => {
-          // Tambahkan event listener untuk tombol iklan setelah popup terbuka
-          document.getElementById('btnIklan').addEventListener('click', () => {
-            // Mulai progress bar hanya setelah tombol iklan diklik
-            let waktu = 10;
-            const bar = document.getElementById('progressIklan');
-            const intervalIklan = setInterval(() => {
-              waktu--;
-              bar.style.width = `${(10 - waktu) * 10}%`;
-              if (waktu <= 0) {
-                clearInterval(intervalIklan);
-                tambahPoin(7);
-                lastIklanShown = captchaCounter;
-                localStorage.setItem('lastIklanShown', lastIklanShown);
-                Swal.fire('Poin Bertambah +7', 'Lanjutkan mengisi captcha.', 'success').then(() => {
-                  // Setelah 10 detik, buat captcha baru
-                  buatCaptcha();
-                });
-              }
-            }, 1000);
-          });
+          didOpen: () => {
+            // Menambahkan event listener untuk tombol iklan setelah popup terbuka
+            document.getElementById('btnIklan').addEventListener('click', () => {
+              // Mulai progress bar hanya setelah tombol iklan diklik
+              let waktu = 10;
+              const bar = document.getElementById('progressIklan');
+              const intervalIklan = setInterval(() => {
+                waktu--;
+                bar.style.width = `${(10 - waktu) * 10}%`;
+                if (waktu <= 0) {
+                  clearInterval(intervalIklan);
+                  tambahPoin(700);
+                  lastIklanShown = captchaCounter;
+                  localStorage.setItem('lastIklanShown', lastIklanShown);
+                  Swal.fire('Poin Bertambah +700', 'Lanjutkan mengisi captcha.', 'success').then(() => {
+                    // Setelah 10 detik, buat captcha baru
+                    buatCaptcha();
+                  });
+                }
+              }, 1000);
+            });
+          }
         });
       } else {
         const poinRandom = Math.floor(Math.random() * 101) + 100; // 100 - 200
