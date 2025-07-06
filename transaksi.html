@@ -31,6 +31,7 @@
   </div>
 
   <script>
+    // Function for generating the struk
     document.getElementById("generateButton").onclick = function() {
       let inputData = document.getElementById("inputData").value.trim();
       if (inputData === "") {
@@ -40,26 +41,27 @@
 
       let trxDetails = inputData.split('\n');
 
-      // Make sure there are at least 5 lines of data
+      // Ensure the data format is complete
       if (trxDetails.length < 5) {
         alert("Data format is incomplete.");
         return;
       }
 
+      // Extracting the fields from the data
       let idTrx = trxDetails[0].split(":")[1].trim();
       let produk = trxDetails[1].split(":")[1].trim();
       let tujuan = trxDetails[2].split(":")[1].trim();
       let snData = trxDetails[3].split(":")[1].trim();
       let status = trxDetails[4].split(":")[1].trim();
 
-      // Extracting SN
+      // Extracting parts from SN data
       let snParts = snData.split('/');
       let nomorToken = snParts[0].trim();
       let nama = snParts[1].trim();
       let tarifDaya = snParts[2].trim();
       let jumlahKwh = snParts[3].trim();
 
-      // Preparing the formatted transaction details
+      // Formatting transaction details
       let formattedTrxDetails = `
         <div><strong>ID Trx:</strong> ${idTrx}</div>
         <div><strong>Produk:</strong> ${produk}</div>
@@ -74,17 +76,17 @@
       // Display the struk details
       document.getElementById("trxDetails").innerHTML = formattedTrxDetails;
 
-      // Remove 'hidden' to display the struk container
+      // Remove the 'hidden' class to show the struk container
       document.getElementById("struk").classList.remove("hidden");
 
-      // Download the struk as an image
+      // Set up the download button click event
       document.getElementById("downloadButton").onclick = function() {
-        // We will first create the canvas using html2canvas
+        // Use html2canvas to capture the #strukContainer element as a canvas
         html2canvas(document.getElementById("strukContainer")).then(function(canvas) {
-          // Create an anchor element to trigger download
-          var link = document.createElement('a');
-          link.href = canvas.toDataURL('image/png'); // Generate image data URL
-          link.download = 'struk-transaksi.png'; // Filename for the downloaded image
+          // Create a temporary link to trigger the download
+          let link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png'); // Capture as PNG
+          link.download = 'struk-transaksi.png'; // Filename for the download
           link.click(); // Trigger the download
         });
       };
