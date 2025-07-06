@@ -40,6 +40,7 @@
 
       let trxDetails = inputData.split('\n');
 
+      // Make sure there are at least 5 lines of data
       if (trxDetails.length < 5) {
         alert("Data format is incomplete.");
         return;
@@ -72,15 +73,19 @@
 
       // Display the struk details
       document.getElementById("trxDetails").innerHTML = formattedTrxDetails;
+
+      // Remove 'hidden' to display the struk container
       document.getElementById("struk").classList.remove("hidden");
 
       // Download the struk as an image
       document.getElementById("downloadButton").onclick = function() {
+        // We will first create the canvas using html2canvas
         html2canvas(document.getElementById("strukContainer")).then(function(canvas) {
-          let link = document.createElement('a');
-          link.download = 'struk-transaksi.png';
-          link.href = canvas.toDataURL();
-          link.click();
+          // Create an anchor element to trigger download
+          var link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png'); // Generate image data URL
+          link.download = 'struk-transaksi.png'; // Filename for the downloaded image
+          link.click(); // Trigger the download
         });
       };
     };
