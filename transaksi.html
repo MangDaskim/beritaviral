@@ -31,10 +31,19 @@
   </div>
 
   <script>
-    // Function to extract data from the pasted input
     document.getElementById("generateButton").onclick = function() {
       let inputData = document.getElementById("inputData").value.trim();
+      if (inputData === "") {
+        alert("Please paste data into the textarea.");
+        return;
+      }
+
       let trxDetails = inputData.split('\n');
+
+      if (trxDetails.length < 5) {
+        alert("Data format is incomplete.");
+        return;
+      }
 
       let idTrx = trxDetails[0].split(":")[1].trim();
       let produk = trxDetails[1].split(":")[1].trim();
@@ -61,7 +70,7 @@
         <div><strong>Status:</strong> ${status}</div>
       `;
 
-      // Display the struk
+      // Display the struk details
       document.getElementById("trxDetails").innerHTML = formattedTrxDetails;
       document.getElementById("struk").classList.remove("hidden");
 
