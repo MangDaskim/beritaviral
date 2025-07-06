@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Data Transaksi</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@0.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="container bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
+    <h1 class="text-2xl font-semibold text-center mb-6">Input Data Transaksi</h1>
+    
+    <textarea id="inputData" class="w-full p-4 border border-gray-300 rounded-lg mb-4" rows="8" placeholder="Paste data transaksi di sini"></textarea>
+    
+    <button id="generateButton" class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-700">Generate Struk</button>
+
+    <div id="struk" class="mt-8 hidden">
+      <div class="bg-white p-4 rounded-lg shadow-lg w-full" id="strukContainer">
+        <img src="logo.png" alt="Logo" class="w-32 mx-auto mb-4">
+        
+        <div class="text-lg font-semibold mb-2">Rincian Transaksi</div>
+        <div id="trxDetails"></div>
+        
+        <div class="mt-4 text-center">
+          <button id="downloadButton" class="bg-green-500 text-white p-2 rounded-lg">Download Struk</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Function to extract data from the pasted input
+    document.getElementById("generateButton").onclick = function() {
+      let inputData = document.getElementById("inputData").value.trim();
+      let trxDetails = inputData.split('\n');
+
+      let idTrx = trxDetails[0].split(":")[1].trim();
+      let produk = trxDetails[1].split(":")[1].trim();
+      let tujuan = trxDetails[2].split(":")[1].trim();
+      let snData = trxDetails[3].split(":")[1].trim();
+      let status = trxDetails[4].split(":")[1].trim();
+
+      // Extracting SN
+      let snParts = snData.split('/');
+      let nomorToken = snParts[0].trim();
+      let nama = snParts[1].trim();
+      let tarifDaya = snParts[2].trim();
+      let jumlahKwh = snParts[3].trim();
+
+      // Preparing the formatted transaction details
+      let formattedTrxDetails = `
+        <div><strong>ID Trx:</strong> ${idTrx}</div>
+        <div><strong>Produk:</strong> ${produk}</div>
+        <div><strong>No Meter:</strong> ${tujuan}</div>
+        <div><strong>Nomor Token:</strong> <span class="text-red-600">${nomorToken}</span></div>
+        <div><strong>Nama:</strong> ${nama}</div>
+        <div><strong>Tarif/Daya:</strong> ${tarifDaya}</div>
+        <div><strong>Jumlah kWh:</strong> ${jumlahKwh}</div>
+        <div><strong>Status:</strong> ${status}</div>
+      `;
+
+      // Display the struk
+      document.getElementById("trxDetails").innerHTML = formattedTrxDetails;
+      document.getElementById("struk").classList.remove("hidden");
+
+      // Download the struk as an image
+      document.getElementById("downloadButton").onclick = function() {
+        html2canvas(document.getElementById("strukContainer")).then(function(canvas) {
+          let link = document.createElement('a');
+          link.download = 'struk-transaksi.png';
+          link.href = canvas.toDataURL();
+          link.click();
+        });
+      };
+    };
+  </script>
+
+</body>
+</html>
