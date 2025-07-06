@@ -31,7 +31,6 @@
   </div>
 
   <script>
-    // Function for generating the struk
     document.getElementById("generateButton").onclick = function() {
       let inputData = document.getElementById("inputData").value.trim();
       if (inputData === "") {
@@ -41,27 +40,27 @@
 
       let trxDetails = inputData.split('\n');
 
-      // Ensure the data format is complete
+      // Make sure there are at least 5 lines of data
       if (trxDetails.length < 5) {
         alert("Data format is incomplete.");
         return;
       }
 
-      // Extracting the fields from the data
+      // Extracting fields from the pasted data
       let idTrx = trxDetails[0].split(":")[1].trim();
       let produk = trxDetails[1].split(":")[1].trim();
       let tujuan = trxDetails[2].split(":")[1].trim();
       let snData = trxDetails[3].split(":")[1].trim();
       let status = trxDetails[4].split(":")[1].trim();
 
-      // Extracting parts from SN data
+      // Extracting SN parts
       let snParts = snData.split('/');
       let nomorToken = snParts[0].trim();
       let nama = snParts[1].trim();
       let tarifDaya = snParts[2].trim();
       let jumlahKwh = snParts[3].trim();
 
-      // Formatting transaction details
+      // Preparing formatted transaction details
       let formattedTrxDetails = `
         <div><strong>ID Trx:</strong> ${idTrx}</div>
         <div><strong>Produk:</strong> ${produk}</div>
@@ -76,18 +75,27 @@
       // Display the struk details
       document.getElementById("trxDetails").innerHTML = formattedTrxDetails;
 
-      // Remove the 'hidden' class to show the struk container
+      // Remove 'hidden' class to show the struk container
       document.getElementById("struk").classList.remove("hidden");
+
+      // Log to see the content of strukContainer
+      console.log('Struk Container:', document.getElementById("strukContainer"));
 
       // Set up the download button click event
       document.getElementById("downloadButton").onclick = function() {
-        // Use html2canvas to capture the #strukContainer element as a canvas
+        // Logging before rendering to canvas
+        console.log('Rendering canvas...');
         html2canvas(document.getElementById("strukContainer")).then(function(canvas) {
+          // Log canvas data to check if it's created properly
+          console.log('Canvas created:', canvas);
+
           // Create a temporary link to trigger the download
           let link = document.createElement('a');
-          link.href = canvas.toDataURL('image/png'); // Capture as PNG
+          link.href = canvas.toDataURL('image/png'); // Convert canvas to PNG data URL
           link.download = 'struk-transaksi.png'; // Filename for the download
           link.click(); // Trigger the download
+        }).catch(function(error) {
+          console.error('Error generating canvas:', error);
         });
       };
     };
