@@ -296,7 +296,9 @@ function renderPagination(totalItems, currentPage) {
   header: true,
   complete: function(results) {
     originalData = results.data.filter(v => v.judul && v.gambar && v.durasi && v.tanggal);
-    applyFilter(); // akan ambil halaman dari URL
+    filteredData = [...originalData]; // isi filteredData
+    const pageFromURL = getPageFromURL();
+    renderVideos(filteredData, pageFromURL); // render sesuai URL
   }
 });
 </script>
