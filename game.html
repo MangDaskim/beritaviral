@@ -134,7 +134,7 @@
     
     #celebration .message {
     color: gold;
-    font-size: 2rem;
+    font-size: 1.5rem;
     text-align: center;
     animation: scaleUp 0.5s ease-in-out;
     }
@@ -511,12 +511,12 @@
   
   document.querySelectorAll(".bet").forEach(el => el.classList.remove("winner"));
   
-  if (red === 2) { document.querySelector(".red-2").classList.add("winner"); winnerText = "Menang Merah Dua"; hasWinner = true; }
-  if (red === 3) { document.querySelector(".red-3").classList.add("winner"); winnerText = "Menang Merah Tiga"; hasWinner = true; }
-  if (white === 2) { document.querySelector(".white-2").classList.add("winner"); winnerText = "Menang Putih Dua"; hasWinner = true; }
-  if (white === 3) { document.querySelector(".white-3").classList.add("winner"); winnerText = "Menang Putih Tiga"; hasWinner = true; }
-  if (jp === 1) { document.querySelector(".jp-1").classList.add("winner"); winnerText = "Jackpot Satu"; hasWinner = true; }
-  if (jp >= 2) { document.querySelector(".jp-2").classList.add("winner"); winnerText = "Jackpot Dua"; hasWinner = true; }
+  if (red === 2) { document.querySelector(".red-2").classList.add("winner"); winnerText = "Hasil Keluar. Merah Dua"; hasWinner = true; }
+  if (red === 3) { document.querySelector(".red-3").classList.add("winner"); winnerText = "Hasil Keluar. Merah Tiga"; hasWinner = true; }
+  if (white === 2) { document.querySelector(".white-2").classList.add("winner"); winnerText = "Hasil Keluar. Putih Dua"; hasWinner = true; }
+  if (white === 3) { document.querySelector(".white-3").classList.add("winner"); winnerText = "Hasil Keluar. Putih Tiga"; hasWinner = true; }
+  if (jp === 1) { document.querySelector(".jp-1").classList.add("winner"); winnerText = "Hasil Keluar. Jackpot Satu"; hasWinner = true; }
+  if (jp >= 2) { document.querySelector(".jp-2").classList.add("winner"); winnerText = "Hasil Keluar. Jackpot Dua"; hasWinner = true; }
 
 // === PROSES TARUHAN PEMAIN ===
 const players = JSON.parse(sessionStorage.getItem("players")) || [];
