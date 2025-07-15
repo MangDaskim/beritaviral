@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Game 100 Kotak</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(28px, 1fr));
+      gap: 2px;
+      max-width: 450px;
+      margin: 20px auto;
+    }
+
+    .cell {
+      aspect-ratio: 1 / 1;
+      box-sizing: border-box;
+      border: 1px solid #333;
+      position: relative;
+    }
+
+    .red {
+      background-color: #e74c3c;
+    }
+
+    .white {
+      background-color: #ecf0f1;
+    }
+    
+    .jp {
+    background-color: gold !important;
+    box-shadow: 0 0 10px 2px #ffd700;
+    }
+
+    .ball {
+      width: 60%;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background-color: #3498db;
+      position: absolute;
+      left: 20%;
+      top: -100%;
+      animation: dropIn 0.4s ease forwards;
+    }
+
+    @keyframes dropIn {
+      from {
+        top: -100%;
+      }
+      to {
+        top: 20%;
+      }
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2ecc71;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:disabled {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+
+    #stats {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    
+    .grid-bet {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-width: 450px;
+    margin: 10px auto;
+    }
+    
+    .bet {
+    background-color: #134e13;
+    padding: 10px;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    border: 2px solid transparent;
+    }
+    
+    .bet.winner {
+    border-color: yellow;
+    background-color: #27ae60;
+    }
+    
+    #celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    #celebration .message {
+    color: gold;
+    font-size: 2rem;
+    text-align: center;
+    animation: scaleUp 0.5s ease-in-out;
+    }
+    
+    #celebration.hidden {
+    display: none;
+    }
+    
+    @keyframes scaleUp {
+    from { transform: scale(0.3); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+    }
+    
+    .player-container {
+    background: #0e2d0e;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 10px;
+    color: #fff;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    }
+    
+    #playerForm {
+    margin-top: 10px;
+    }
+    
+    #playerForm input {
+    margin: 5px 0;
+    padding: 5px;
+    width: calc(100% - 10px);
+    display: block;
+    border-radius: 4px;
+    border: none;
+    }
+    
+    #playerForm button {
+    margin-top: 5px;
+    width: 100%;
+    }
+    
+    .player-table-container {
+    overflow-x: auto;
+    margin-top: 10px;
+    }
+    
+    .player-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1e3b1e;
+    color: #ffffff;
+    font-size: 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    }
+    
+    .player-table th, .player-table td {
+    padding: 8px 12px;
+    text-align: center;
+    border-bottom: 1px solid #2e552e;
+    }
+    
+    .player-table th {
+    background-color: #2b4a2b;
+    font-weight: bold;
+    }
+    
+    .player-table tbody tr:nth-child(even) {
+    background-color: #264326;
+    }
+    
+    .player-table tbody tr:hover {
+    background-color: #336633;
+    }
+    
+    .player-table button {
+    background: #ff4d4d;
+    border: none;
+    padding: 4px 8px;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    }
+    
+    .player-table button:hover {
+    background: #e33;
+    }
+    
+    .hidden {
+    display: none;
+    }
+
+    @media (max-width: 500px) {
+      button {
+        width: 100%;
+        font-size: 14px;
+      }
+
+      #grid {
+        max-width: 100%;
+        grid-template-columns: repeat(10, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Game 100 Kotak</h1>
+  <p>Jatuhkan 3 bola satu per satu ke posisi acak</p>
+
+  <div id="grid"></div>
+  
+  <div id="stats">
+  <p>Merah: <span id="redPercent">0%</span> | Putih: <span id="whitePercent">0%</span></p>
+  </div>
+  
+  <div id="celebration" class="hidden">
+  <div class="message">🎉 Selamat! Kamu Menang! 🎉</div>
+  </div>
+  
+  <div id="betting-area" class="grid-bet">
+  <div class="bet jp-1">JP 1<br><small>1:15</small></div>
+  <div class="bet jp-2">JP 2<br><small>1:225</small></div>
+  
+  <div class="bet red-2">Merah 2<br><small>1:1</small></div>
+  <div class="bet white-2">Putih 2<br><small>1:1</small></div>
+  
+  <div class="bet red-3">Merah 3<br><small>1:7</small></div>
+  <div class="bet white-3">Putih 3<br><small>1:7</small></div>
+  </div>
+
+  <div class="buttons">
+    <button id="dropButton">Jatuhkan Bola</button>
+    <button id="resetButton">Reset Permainan</button>
+  </div>
+  
+  <!-- === PEMAIN === -->
+  <div id="player-section" class="player-container">
+  <button id="toggleForm">➕ Tambahkan Pemain</button>
+  
+  <div id="playerForm" class="hidden">
+  <input type="text" id="playerName" placeholder="Nama Pemain">
+  <input type="number" id="playerDeposit" placeholder="Deposit">
+  <button id="addPlayer">Simpan</button>
+  </div>
+  
+  <h3>📋 Daftar Pemain Aktif</h3>
+  <div class="player-table-container">
+  <table id="playerList" class="player-table">
+  <thead>
+  <tr>
+  <th>No</th>
+  <th>Nama</th>
+  <th>Status</th>
+  <th>Saldo</th>
+  <th>Taruhan</th>
+  <th>Target</th>
+  <th>Aksi</th>
+  <th>Hapus</th>
+  <th>Nonaktifkan</th>
+  </tr>
+  </thead>
+  <tbody></tbody>
+  </table>
+  <br/>
+  <h3>❌ Daftar Pemain Nonaktif</h3>
+  <table id="inactivePlayerList" class="player-table">
+  <thead>
+  <tr>
+  <th>No</th>
+  <th>Nama</th>
+  <th>Saldo</th>
+  <th>Aktifkan</th>
+  <th>Hapus</th>
+  </tr>
+  </thead>
+  <tbody></tbody>
+  </table>
+  </div>
+  <br/>
+  <button onclick="exportInactiveToCSV()">Ekspor Daftar Nonaktif ke CSV</button>
+  <br/><br/>
+  <button id="resetPlayers">🧹 Reset Semua Pemain</button>
+  </div>
+
+  <script>
+  const grid = document.getElementById("grid");
+  const dropButton = document.getElementById("dropButton");
+  const resetButton = document.getElementById("resetButton");
+  const redPercent = document.getElementById("redPercent");
+  const whitePercent = document.getElementById("whitePercent");
+  const jpCountDisplay = document.createElement("p");
+  document.getElementById("stats").appendChild(jpCountDisplay);
+  
+  const rows = 10;
+  const cols = 10;
+  const maxBalls = 3;
+  const chanceJP = 1; // Peluang jatuh ke JP (%)
+  let droppedBalls = 0;
+  const cells = [];
+  let jpCells = [];
+  
+  function createGrid() {
+  grid.innerHTML = "";
+  cells.length = 0;
+  droppedBalls = parseInt(sessionStorage.getItem("droppedBalls")) || 0;
+  const savedBalls = JSON.parse(sessionStorage.getItem("balls")) || [];
+  jpCells = JSON.parse(sessionStorage.getItem("jpIndexes")) || [];
+  
+  dropButton.innerText = droppedBalls >= maxBalls ? "Ulangi" : "Jatuhkan Bola";
+  dropButton.disabled = false;
+  updateStatsDisplay();
+  
+  if (!jpCells.length) {
+  let allIndexes = [];
+  for (let r = 0; r < rows; r++) {
+  for (let c = 0; c < cols; c++) {
+  allIndexes.push([r, c]);
+  }
+  }
+  jpCells = [];
+  while (jpCells.length < 2) {
+  const index = Math.floor(Math.random() * allIndexes.length);
+  jpCells.push(allIndexes.splice(index, 1)[0]);
+  }
+  sessionStorage.setItem("jpIndexes", JSON.stringify(jpCells));
+  }
+  
+  for (let r = 0; r < rows; r++) {
+  cells[r] = [];
+  for (let c = 0; c < cols; c++) {
+  const cell = document.createElement("div");
+  const isRed = (r + c) % 2 === 0;
+  cell.className = `cell ${isRed ? "red" : "white"}`;
+  if (jpCells.some(([jr, jc]) => jr === r && jc === c)) {
+  cell.classList.add("jp");
+  cell.style.backgroundColor = "gold";
+  }
+  grid.appendChild(cell);
+  cells[r][c] = cell;
+  }
+  }
+  
+  savedBalls.forEach(([r, c]) => {
+  const ball = document.createElement("div");
+  ball.className = "ball";
+  cells[r][c].appendChild(ball);
+  });
+  }
+  
+  function dropBall() {
+  if (dropButton.innerText === "Ulangi") {
+  sessionStorage.removeItem("balls");
+  sessionStorage.removeItem("sessionBalls");
+  sessionStorage.setItem("droppedBalls", "0");
+  droppedBalls = 0;
+  document.querySelectorAll(".bet").forEach(el => el.classList.remove("winner"));
+  
+  // Tambahkan ini: reset taruhan pemain tanpa mereset saldo
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  players.forEach(player => {
+  player.bet = null;
+  player.betTarget = null;
+  player.status = null;
+  });
+  sessionStorage.setItem("players", JSON.stringify(players));
+  showPlayers();
+  
+  createGrid();
+  return;
+  }
+  
+  if (droppedBalls >= maxBalls) return;
+  
+  let empty = [], jpEmpty = [];
+  for (let r = 0; r < rows; r++) {
+  for (let c = 0; c < cols; c++) {
+  const cell = cells[r][c];
+  if (!cell.querySelector('.ball')) {
+  if (cell.classList.contains("jp")) jpEmpty.push([r, c]);
+  else empty.push([r, c]);
+  }
+  }
+  }
+  
+  if (empty.length + jpEmpty.length === 0) return;
+  
+  let target;
+  const roll = Math.random() * 100;
+  if (roll < chanceJP && jpEmpty.length > 0) {
+  target = jpEmpty[Math.floor(Math.random() * jpEmpty.length)];
+  } else if (empty.length > 0) {
+  target = empty[Math.floor(Math.random() * empty.length)];
+  } else {
+  return;
+  }
+  
+  const [r, c] = target;
+  const cell = cells[r][c];
+  const ball = document.createElement("div");
+  ball.className = "ball";
+  cell.appendChild(ball);
+  droppedBalls++;
+  sessionStorage.setItem("droppedBalls", droppedBalls);
+  
+  // Simpan bola global
+  let savedBalls = JSON.parse(sessionStorage.getItem("balls")) || [];
+  savedBalls.push([r, c]);
+  sessionStorage.setItem("balls", JSON.stringify(savedBalls));
+  
+  // Simpan bola sesi
+  let sessionBalls = JSON.parse(sessionStorage.getItem("sessionBalls")) || [];
+  sessionBalls.push([r, c]);
+  sessionStorage.setItem("sessionBalls", JSON.stringify(sessionBalls));
+  
+  // Statistik total
+  let red = parseInt(sessionStorage.getItem("redCount")) || 0;
+  let white = parseInt(sessionStorage.getItem("whiteCount")) || 0;
+  let jp = parseInt(sessionStorage.getItem("jpCount")) || 0;
+  
+  if (cell.classList.contains("red")) red++;
+  else if (cell.classList.contains("white")) white++;
+  if (cell.classList.contains("jp")) jp++;
+  
+  sessionStorage.setItem("redCount", red);
+  sessionStorage.setItem("whiteCount", white);
+  sessionStorage.setItem("jpCount", jp);
+  
+  updateStatsDisplay();
+  
+  if (droppedBalls >= maxBalls) {
+  dropButton.innerText = "Ulangi";
+  showSessionWinners();
+  }
+  }
+  
+  function updateStatsDisplay() {
+  let red = parseInt(sessionStorage.getItem("redCount")) || 0;
+  let white = parseInt(sessionStorage.getItem("whiteCount")) || 0;
+  let jp = parseInt(sessionStorage.getItem("jpCount")) || 0;
+  let total = red + white;
+  
+  let redP = 0, whiteP = 0, jpP = 0;
+  if (total > 0) {
+  redP = Math.round((red / total) * 100);
+  whiteP = Math.round((white / total) * 100);
+  jpP = Math.round((jp / total) * 100);
+  }
+  
+  redPercent.textContent = redP + "%";
+  whitePercent.textContent = whiteP + "%";
+  jpCountDisplay.innerText = `JP: ${jpP}%`;
+  }
+  
+  function showSessionWinners() {
+  const sessionBalls = JSON.parse(sessionStorage.getItem("sessionBalls")) || [];
+  let red = 0, white = 0, jp = 0;
+  let hasWinner = false;
+  let winnerText = "";
+  
+  sessionBalls.forEach(([r, c]) => {
+  const cell = cells[r][c];
+  if (cell.classList.contains("red")) red++;
+  else if (cell.classList.contains("white")) white++;
+  if (cell.classList.contains("jp")) jp++;
+  });
+  
+  document.querySelectorAll(".bet").forEach(el => el.classList.remove("winner"));
+  
+  if (red === 2) { document.querySelector(".red-2").classList.add("winner"); winnerText = "Menang Merah Dua"; hasWinner = true; }
+  if (red === 3) { document.querySelector(".red-3").classList.add("winner"); winnerText = "Menang Merah Tiga"; hasWinner = true; }
+  if (white === 2) { document.querySelector(".white-2").classList.add("winner"); winnerText = "Menang Putih Dua"; hasWinner = true; }
+  if (white === 3) { document.querySelector(".white-3").classList.add("winner"); winnerText = "Menang Putih Tiga"; hasWinner = true; }
+  if (jp === 1) { document.querySelector(".jp-1").classList.add("winner"); winnerText = "Jackpot Satu"; hasWinner = true; }
+  if (jp >= 2) { document.querySelector(".jp-2").classList.add("winner"); winnerText = "Jackpot Dua"; hasWinner = true; }
+
+// === PROSES TARUHAN PEMAIN ===
+const players = JSON.parse(sessionStorage.getItem("players")) || [];
+
+players.forEach((player, i) => {
+  const target = player.betTarget;
+  const bet = player.bet;
+  let menang = false;
+
+  if (!target || !bet) return;
+
+  // Hitung hasil
+  const red = sessionBalls.filter(([r, c]) => cells[r][c].classList.contains("red")).length;
+  const white = sessionBalls.filter(([r, c]) => cells[r][c].classList.contains("white")).length;
+  const jp = sessionBalls.filter(([r, c]) => cells[r][c].classList.contains("jp")).length;
+
+  let hadiah = 0;
+
+  if (target === "red-2" && red === 2) { hadiah = bet * 2; menang = true; }
+  if (target === "red-3" && red === 3) { hadiah = bet * 8; menang = true; }
+  if (target === "white-2" && white === 2) { hadiah = bet * 2; menang = true; }
+  if (target === "white-3" && white === 3) { hadiah = bet * 8; menang = true; }
+  if (target === "jp-1" && jp === 1) { hadiah = bet * 16; menang = true; }
+  if (target === "jp-2" && jp >= 2) { hadiah = bet * 226; menang = true; }
+
+  if (menang) {
+  players[i].deposit += hadiah;
+  players[i].status = "Menang";
+  } else {
+  players[i].status = "Kalah";
+  }
+  
+  // Reset taruhan per sesi
+  players[i].bet = null;
+  players[i].betTarget = null;
+});
+
+sessionStorage.setItem("players", JSON.stringify(players));
+showPlayers(); // refresh tampilan pemain
+  
+  if (hasWinner) {
+  showCelebration();
+  speak(winnerText); // ← kita akan isi ini
+  } else {
+  speak("Tidak ada pemenang");
+  }
+  }
+  
+  dropButton.addEventListener("click", dropBall);
+  
+  resetButton.addEventListener("click", () => {
+  sessionStorage.clear();
+  document.querySelectorAll(".bet").forEach(el => el.classList.remove("winner"));
+  createGrid();
+  });
+  
+  function showCelebration() {
+  const el = document.getElementById("celebration");
+  el.classList.remove("hidden");
+  
+  setTimeout(() => {
+  el.classList.add("hidden");
+  }, 4000); // tampil selama 4 detik
+  }
+  
+  createGrid();
+  
+  // === PLAYER SECTION ===
+  const toggleFormBtn = document.getElementById("toggleForm");
+  const playerForm = document.getElementById("playerForm");
+  const addPlayerBtn = document.getElementById("addPlayer");
+  const playerList = document.getElementById("playerList");
+  const resetPlayersBtn = document.getElementById("resetPlayers");
+  
+  toggleFormBtn.addEventListener("click", () => {
+  playerForm.classList.toggle("hidden");
+  });
+  
+  addPlayerBtn.addEventListener("click", () => {
+  const name = document.getElementById("playerName").value.trim();
+  const deposit = parseInt(document.getElementById("playerDeposit").value);
+  
+  if (!name || isNaN(deposit)) {
+  alert("Nama dan deposit harus diisi dengan benar.");
+  return;
+  }
+  
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  players.push({ name, deposit });
+  sessionStorage.setItem("players", JSON.stringify(players));
+  
+  document.getElementById("playerName").value = "";
+  document.getElementById("playerDeposit").value = "";
+  
+  showPlayers();
+  });
+  
+  function showPlayers() {
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  const tbody = document.querySelector("#playerList tbody");
+  tbody.innerHTML = "";
+  
+  players.forEach((player, index) => {
+  const row = document.createElement("tr");
+  
+  row.innerHTML = `
+  <td>${index + 1}</td>
+  <td>${player.name}</td>
+  <td>${player.status ? (player.status === "Menang" ? "✅ Menang" : "❌ Kalah") : "-"}</td>
+  <td>${player.deposit}</td>
+  
+  <td>
+  <select onchange="setPlayerBetAmount(${index}, this.value)">
+  <option value="">Pilih</option>
+  <option value="1000" ${player.bet == 1000 ? "selected" : ""}>1000</option>
+  <option value="5000" ${player.bet == 5000 ? "selected" : ""}>5000</option>
+  <option value="10000" ${player.bet == 10000 ? "selected" : ""}>10000</option>
+  </select>
+  </td>
+  
+  <td>
+  <select onchange="setPlayerBetTarget(${index}, this.value)">
+  <option value="">Pilih</option>
+  <option value="red-2" ${player.betTarget == "red-2" ? "selected" : ""}>Merah 2</option>
+  <option value="red-3" ${player.betTarget == "red-3" ? "selected" : ""}>Merah 3</option>
+  <option value="white-2" ${player.betTarget == "white-2" ? "selected" : ""}>Putih 2</option>
+  <option value="white-3" ${player.betTarget == "white-3" ? "selected" : ""}>Putih 3</option>
+  <option value="jp-1" ${player.betTarget == "jp-1" ? "selected" : ""}>JP 1</option>
+  <option value="jp-2" ${player.betTarget == "jp-2" ? "selected" : ""}>JP 2</option>
+  </select>
+  </td>
+  
+  <td>
+  <button onclick="placeBet(${index})">Pasang</button>
+  </td>
+  
+  <td>
+  <button onclick="removePlayer(${index})">Hapus</button>
+  </td>
+  <td>
+  <button onclick="moveToInactive(${index})">Nonaktifkan</button>
+  </td>
+  </td>
+  `;
+  
+  tbody.appendChild(row);
+  });
+  }
+  
+  function setPlayerBetAmount(index, amount) {
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  players[index].bet = parseInt(amount);
+  sessionStorage.setItem("players", JSON.stringify(players));
+  }
+  
+  function setPlayerBetTarget(index, target) {
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  players[index].betTarget = target;
+  sessionStorage.setItem("players", JSON.stringify(players));
+  }
+  
+  function placeBet(index) {
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  const player = players[index];
+  
+  if (!player.bet || !player.betTarget) {
+  alert("Pilih jumlah dan target taruhan terlebih dahulu.");
+  return;
+  }
+  
+  if (player.deposit < player.bet) {
+  alert("Saldo tidak cukup.");
+  return;
+  }
+  
+  // Kurangi saldo
+  player.deposit -= player.bet;
+  sessionStorage.setItem("players", JSON.stringify(players));
+  showPlayers();
+  }
+  
+  function removePlayer(index) {
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  players.splice(index, 1);
+  sessionStorage.setItem("players", JSON.stringify(players));
+  showPlayers();
+  }
+  
+  resetPlayersBtn.addEventListener("click", () => {
+  if (confirm("Yakin hapus semua pemain aktif dan nonaktif?")) {
+  sessionStorage.removeItem("players"); // hapus aktif
+  localStorage.removeItem("inactivePlayers"); // hapus nonaktif
+  showPlayers();
+  showInactivePlayers();
+  }
+  });
+  
+  // Tampilkan awal
+  showPlayers();
+  showInactivePlayers();
+  
+  function moveToInactive(index) {
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  const inactive = JSON.parse(localStorage.getItem("inactivePlayers")) || [];
+  
+  const removed = players.splice(index, 1)[0];
+  inactive.push(removed);
+  
+  sessionStorage.setItem("players", JSON.stringify(players));
+  localStorage.setItem("inactivePlayers", JSON.stringify(inactive));
+  
+  showPlayers();
+  showInactivePlayers(); // tampilkan ulang
+  }
+  
+  function moveToActive(index) {
+  const inactive = JSON.parse(localStorage.getItem("inactivePlayers")) || [];
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  
+  const moved = inactive.splice(index, 1)[0];
+  players.push(moved);
+  
+  localStorage.setItem("inactivePlayers", JSON.stringify(inactive));
+  sessionStorage.setItem("players", JSON.stringify(players));
+  
+  showPlayers();
+  showInactivePlayers();
+  }
+  
+  function updateInactiveDeposit(index, value) {
+  const inactive = JSON.parse(localStorage.getItem("inactivePlayers")) || [];
+  inactive[index].deposit = parseInt(value);
+  localStorage.setItem("inactivePlayers", JSON.stringify(inactive));
+  }
+  
+  function deleteInactivePlayer(index) {
+  const inactive = JSON.parse(localStorage.getItem("inactivePlayers")) || [];
+  inactive.splice(index, 1);
+  localStorage.setItem("inactivePlayers", JSON.stringify(inactive));
+  showInactivePlayers();
+  }
+  
+  function showInactivePlayers() {
+  const tbody = document.querySelector("#inactivePlayerList tbody");
+  const inactive = JSON.parse(localStorage.getItem("inactivePlayers")) || [];
+  
+  tbody.innerHTML = "";
+  inactive.forEach((player, i) => {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+  <td>${i + 1}</td>
+  <td>${player.name}</td>
+  <td>
+  <input type="number" value="${player.deposit}" onchange="updateInactiveDeposit(${i}, this.value)" />
+  </td>
+  <td>
+  <button onclick="moveToActive(${i})">Aktifkan</button>
+  </td>
+  <td>
+  <button onclick="deleteInactivePlayer(${i})">Hapus</button>
+  </td>
+  </td>
+  `;
+  tbody.appendChild(row);
+  });
+  }
+  
+  function exportInactiveToCSV() {
+  const inactive = JSON.parse(localStorage.getItem("inactivePlayers")) || [];
+  if (inactive.length === 0) {
+  alert("Daftar pemain nonaktif kosong.");
+  return;
+  }
+  
+  let csv = "No,Nama,Saldo\n";
+  
+  inactive.forEach((player, i) => {
+  csv += `${i + 1},"${player.name}",${player.deposit}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  
+  // Buat nama file dengan tanggal
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const fileName = `pemain_nonaktif_${yyyy}-${mm}-${dd}.csv`;
+  
+  link.setAttribute("href", url);
+  link.setAttribute("download", fileName);
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  }
+  
+  function speak(text) {
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "id-ID"; // Bahasa Indonesia
+  window.speechSynthesis.speak(msg);
+  }
+  </script>
+
+</body>
+</html>
