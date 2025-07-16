@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Game 100 Kotak</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
   <style>
     body {
       background-color: #111;
@@ -252,6 +253,170 @@
     z-index: 2; /* bola di atas tulisan */
     }
     
+    .game-header {
+    text-align: center;
+    margin: 30px 0 20px;
+    animation: fadeInDown 1s ease-out;
+    }
+    
+    .game-title {
+    font-family: 'Bangers', cursive;
+    font-size: 4rem;
+    background: linear-gradient(to right, red 0%, white 50%, red 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    letter-spacing: 2px;
+    margin: 0;
+    }
+    
+    .game-subtitle {
+    font-size: 1.2rem;
+    color: #444;
+    font-weight: 500;
+    margin-top: 10px;
+    background: rgba(255,255,255,0.8);
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    font-style: italic;
+    }
+    
+    
+    @keyframes fadeInDown {
+    0% { opacity: 0; transform: translateY(-30px); }
+    100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .shining-text {
+    position: relative;
+    overflow: hidden;
+    }
+    
+    .shining-text::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-20deg);
+    animation: shine 5.5s infinite ease-in-out;
+    }
+    
+    @keyframes shine {
+    0% {
+    left: -75%;
+    }
+    100% {
+    left: 125%;
+    }
+    }
+    
+    .cta-floating {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    border-top: 1px solid #ddd;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    color: #222;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    }
+    
+    .cta-floating marquee {
+    white-space: nowrap;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 500;
+    }
+    
+    .cta-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    }
+    
+    .cta-link:hover {
+    text-decoration: underline;
+    }
+    
+    .barcode-container {
+    text-align: center;
+    margin: 40px auto 20px;
+    padding: 20px;
+    max-width: 300px;
+    background: #f9f9f9;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    }
+    
+    .barcode-container:hover {
+    transform: translateY(-2px);
+    }
+    
+    .barcode-container p {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 12px;
+    font-weight: 500;
+    }
+    
+    .barcode-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    }
+    
+    .barcode-img {
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .backsound-control {
+    text-align: center;
+    margin: 20px auto;
+    }
+    
+    .backsound-control input {
+    padding: 8px 12px;
+    width: 250px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-right: 8px;
+    }
+    
+    .backsound-control button {
+    padding: 8px 16px;
+    background: #e60000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    }
+    
+    .backsound-control button:hover {
+    background: #b30000;
+    }
+    
+    .backsound-player {
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    left: -9999px; /* sembunyikan player */
+    }
+    
     .hidden {
     display: none;
     }
@@ -267,12 +432,34 @@
         grid-template-columns: repeat(10, 1fr);
       }
     }
+    
+    @media (max-width: 600px) {
+    .game-title {
+    font-size: 2.5rem;
+    }
+    .game-subtitle {
+    font-size: 1rem;
+    }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Game 100 Kotak</h1>
-  <p>Jatuhkan 3 bola satu per satu ke posisi acak</p>
+  <header class="game-header">
+  <h1 class="game-title shining-text">Game Merah Putih</h1>
+  <p class="game-subtitle">Tebak bola jatuh, menangkan hadiah!</p>
+  </header>
+  
+  <div class="cta-floating">
+  <marquee behavior="scroll" direction="left" scrollamount="4">
+  🎯 Ayo main <strong>Game Merah Putih</strong> & menangkan hadiah! Scan QR di atas untuk daftar. 📲
+  </marquee>
+  </div>
+  
+  <div class="barcode-container">
+  <p>📱 Scan barcode di bawah ini untuk daftar & deposit via WaWa:</p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/6285183104521" alt="QR WhatsApp" class="barcode-img">
+  </div>
 
   <div id="grid"></div>
   
@@ -350,6 +537,14 @@
   <br/><br/>
   <button id="resetPlayers">🧹 Reset Semua Pemain</button>
   </div>
+  
+  <div class="backsound-control">
+  <input type="text" id="youtubeUrl" placeholder="Masukkan URL YouTube" />
+  <button onclick="setBacksound()">Putar Backsound</button>
+  <button onclick="stopBacksound()">Hentikan Backsound</button>
+  </div>
+  
+  <div class="backsound-player" id="backsoundPlayer"></div>
 
   <script>
   const grid = document.getElementById("grid");
@@ -852,6 +1047,28 @@ showPlayers(); // refresh tampilan pemain
   const msg = new SpeechSynthesisUtterance(text);
   msg.lang = "id-ID"; // Bahasa Indonesia
   window.speechSynthesis.speak(msg);
+  }
+  
+  function setBacksound() {
+  const url = document.getElementById("youtubeUrl").value.trim();
+  const id = extractYouTubeID(url);
+  if (!id) {
+  alert("URL tidak valid.");
+  return;
+  }
+  
+  const iframe = `<iframe width="1" height="1" src="https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
+  document.getElementById("backsoundPlayer").innerHTML = iframe;
+  }
+  
+  function extractYouTubeID(url) {
+  const regex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+  }
+  
+  function stopBacksound() {
+  document.getElementById("backsoundPlayer").innerHTML = "";
   }
   </script>
 
