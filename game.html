@@ -230,6 +230,28 @@
     background: #e33;
     }
     
+    .cell {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+    }
+    
+    .jp-text {
+    color: black;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+    }
+    
+    .cell .ball {
+    z-index: 2; /* bola di atas tulisan */
+    }
+    
     .hidden {
     display: none;
     }
@@ -306,8 +328,10 @@
   </thead>
   <tbody></tbody>
   </table>
+  </div>
   <br/>
   <h3>❌ Daftar Pemain Nonaktif</h3>
+  <div class="player-table-container">
   <table id="inactivePlayerList" class="player-table">
   <thead>
   <tr>
@@ -339,7 +363,7 @@
   const rows = 10;
   const cols = 10;
   const maxBalls = 3;
-  const chanceJP = 1; // Peluang jatuh ke JP (%)
+  const chanceJP = 30; // Peluang jatuh ke JP (%)
   let droppedBalls = 0;
   const cells = [];
   let jpCells = [];
@@ -379,6 +403,7 @@
   if (jpCells.some(([jr, jc]) => jr === r && jc === c)) {
   cell.classList.add("jp");
   cell.style.backgroundColor = "gold";
+  cell.innerHTML = "<span class='jp-text'>JP</span>";
   }
   grid.appendChild(cell);
   cells[r][c] = cell;
@@ -515,8 +540,15 @@
   if (red === 3) { document.querySelector(".red-3").classList.add("winner"); winnerText = "Hasil Keluar. Merah Tiga"; hasWinner = true; }
   if (white === 2) { document.querySelector(".white-2").classList.add("winner"); winnerText = "Hasil Keluar. Putih Dua"; hasWinner = true; }
   if (white === 3) { document.querySelector(".white-3").classList.add("winner"); winnerText = "Hasil Keluar. Putih Tiga"; hasWinner = true; }
-  if (jp === 1) { document.querySelector(".jp-1").classList.add("winner"); winnerText = "Hasil Keluar. Jackpot Satu"; hasWinner = true; }
-  if (jp >= 2) { document.querySelector(".jp-2").classList.add("winner"); winnerText = "Hasil Keluar. Jackpot Dua"; hasWinner = true; }
+  if (jp >= 1) {
+  document.querySelector(".jp-1").classList.add("winner");
+  hasWinner = true;
+  winnerText += "Hasil Keluar. Jackpot Satu";
+  }
+  if (jp >= 2) {
+  document.querySelector(".jp-2").classList.add("winner");
+  winnerText += " dan Jackpot Dua";
+  }
 
 // === PROSES TARUHAN PEMAIN ===
 const players = JSON.parse(sessionStorage.getItem("players")) || [];
@@ -539,7 +571,7 @@ players.forEach((player, i) => {
   if (target === "red-3" && red === 3) { hadiah = bet * 8; menang = true; }
   if (target === "white-2" && white === 2) { hadiah = bet * 2; menang = true; }
   if (target === "white-3" && white === 3) { hadiah = bet * 8; menang = true; }
-  if (target === "jp-1" && jp === 1) { hadiah = bet * 16; menang = true; }
+  if (target === "jp-1" && jp >= 1) { hadiah = bet * 16; menang = true; }
   if (target === "jp-2" && jp >= 2) { hadiah = bet * 226; menang = true; }
 
   if (menang) {
