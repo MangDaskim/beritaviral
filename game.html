@@ -462,6 +462,35 @@
     font-weight: bold;
     }
     
+    .fullscreen-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 16px;
+    background-color: rgba(0, 0, 0, 0.4); /* Transparan */
+    border: none;
+    border-radius: 50%;
+    width: 36px; /* Ukuran lebih kecil */
+    height: 36px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    .fullscreen-btn:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: scale(1.05);
+    }
+    
+    .fullscreen-btn img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+    }
+    
     .hidden {
     display: none;
     }
@@ -503,6 +532,10 @@
   <h1 class="game-title shining-text">Game Merah Putih</h1>
   <p class="game-subtitle">Tebak bola jatuh, menangkan hadiah!</p>
   </header>
+  
+  <button onclick="toggleFullScreen()" id="fullscreenBtn" class="fullscreen-btn" title="Fullscreen">
+  <img id="fullscreenIcon" src="https://img.icons8.com/ios-filled/50/ffffff/full-screen.png" alt="Fullscreen" />
+  </button>
   
   <div class="cta-floating">
   <marquee behavior="scroll" direction="left" scrollamount="4">
@@ -614,10 +647,6 @@
   </div>
   
   <div class="backsound-player" id="backsoundPlayer"></div>
-
-<button onclick="toggleFullScreen()" id="fullscreenBtn" style="position: absolute; top: 10px; right: 10px; z-index: 9999;">
-  🔲 Fullscreen
-</button>
 
   <script>
   const grid = document.getElementById("grid");
@@ -1168,12 +1197,18 @@
   
   <script>
   function toggleFullScreen() {
+  const icon = document.getElementById("fullscreenIcon");
+  
   if (!document.fullscreenElement) {
-  document.documentElement.requestFullscreen().catch(err => {
-  alert(`Gagal masuk fullscreen: ${err.message}`);
+  document.documentElement.requestFullscreen().then(() => {
+  icon.src = "https://img.icons8.com/ios-filled/50/ffffff/exit-full-screen.png";
+  }).catch(err => {
+  alert(`Gagal fullscreen: ${err.message}`);
   });
   } else {
-  document.exitFullscreen();
+  document.exitFullscreen().then(() => {
+  icon.src = "https://img.icons8.com/ios-filled/50/ffffff/full-screen.png";
+  });
   }
   }
   </script>
