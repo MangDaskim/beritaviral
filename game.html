@@ -615,6 +615,10 @@
   
   <div class="backsound-player" id="backsoundPlayer"></div>
 
+<button onclick="toggleFullScreen()" id="fullscreenBtn" style="position: absolute; top: 10px; right: 10px; z-index: 9999;">
+  🔲 Fullscreen
+</button>
+
   <script>
   const grid = document.getElementById("grid");
   const dropButton = document.getElementById("dropButton");
@@ -1161,6 +1165,18 @@
   document.getElementById("qrModal").classList.add("hidden");
   }
   </script>
+  
+  <script>
+  function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+  document.documentElement.requestFullscreen().catch(err => {
+  alert(`Gagal masuk fullscreen: ${err.message}`);
+  });
+  } else {
+  document.exitFullscreen();
+  }
+  }
+  </script>
 
 </body>
-  </html>
+</html>
