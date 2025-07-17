@@ -417,6 +417,60 @@
     left: -9999px; /* sembunyikan player */
     }
     
+    /* Modal overlay */
+    .qr-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    }
+    
+    /* Modal content */
+    .qr-modal-content {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    animation: scaleIn 0.3s ease;
+    }
+    
+    .qr-modal-content img {
+    width: 250px;
+    height: 250px;
+    }
+    
+    .qr-modal-content p {
+    margin-top: 12px;
+    font-weight: 500;
+    color: #333;
+    }
+    
+    .status-menang {
+    color: #2ecc71;
+    font-weight: bold;
+    }
+    
+    .status-kalah {
+    color: red;
+    font-weight: bold;
+    }
+    
+    .hidden {
+    display: none;
+    }
+    
+    @keyframes scaleIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+    }
+    
     .hidden {
     display: none;
     }
@@ -457,8 +511,20 @@
   </div>
   
   <div class="barcode-container">
-  <p>📱 Scan barcode di bawah ini untuk daftar & deposit via WaWa:</p>
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/6285183104521" alt="QR WhatsApp" class="barcode-img">
+  <p>📱 Scan barcode di bawah ini untuk daftar & deposit via W4W4:</p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/6283143102940" 
+  alt="QR WhatsApp" 
+  class="barcode-img" 
+  onclick="openQRPopup()" />
+  </div>
+  
+  <!-- Popup Modal -->
+  <div id="qrModal" class="qr-modal hidden" onclick="closeQRPopup()">
+  <div class="qr-modal-content">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://wa.me/6283143102940" 
+  alt="QR WhatsApp Besar" />
+  <p>Scan untuk daftar via WhatsApp</p>
+  </div>
   </div>
 
   <div id="grid"></div>
@@ -506,6 +572,7 @@
   <th>Nama</th>
   <th>Status</th>
   <th>Saldo</th>
+  <th>Total Bet</th>
   <th>Taruhan</th>
   <th>Target</th>
   <th>Aksi</th>
@@ -540,7 +607,9 @@
   
   <div class="backsound-control">
   <input type="text" id="youtubeUrl" placeholder="Masukkan URL YouTube" />
+  <br/><br/>
   <button onclick="setBacksound()">Putar Backsound</button>
+  <br/><br/>
   <button onclick="stopBacksound()">Hentikan Backsound</button>
   </div>
   
@@ -558,7 +627,7 @@
   const rows = 10;
   const cols = 10;
   const maxBalls = 3;
-  const chanceJP = 30; // Peluang jatuh ke JP (%)
+  const chanceJP = 1; // Peluang jatuh ke JP (%)
   let droppedBalls = 0;
   const cells = [];
   let jpCells = [];
@@ -620,12 +689,13 @@
   droppedBalls = 0;
   document.querySelectorAll(".bet").forEach(el => el.classList.remove("winner"));
   
-  // Tambahkan ini: reset taruhan pemain tanpa mereset saldo
+  // Tambahkan ini:
   const players = JSON.parse(sessionStorage.getItem("players")) || [];
   players.forEach(player => {
   player.bet = null;
   player.betTarget = null;
   player.status = null;
+  player.totalBet = 0; // Reset total bet
   });
   sessionStorage.setItem("players", JSON.stringify(players));
   showPlayers();
@@ -744,31 +814,32 @@
   document.querySelector(".jp-2").classList.add("winner");
   winnerText += " dan Jackpot Dua";
   }
-
-// === PROSES TARUHAN PEMAIN ===
-const players = JSON.parse(sessionStorage.getItem("players")) || [];
-
-players.forEach((player, i) => {
+  
+  // === PROSES TARUHAN PEMAIN ===
+  const players = JSON.parse(sessionStorage.getItem("players")) || [];
+  
+  players.forEach((player, i) => {
   const target = player.betTarget;
   const bet = player.bet;
   let menang = false;
-
+  
   if (!target || !bet) return;
-
+  
   // Hitung hasil
   const red = sessionBalls.filter(([r, c]) => cells[r][c].classList.contains("red")).length;
   const white = sessionBalls.filter(([r, c]) => cells[r][c].classList.contains("white")).length;
   const jp = sessionBalls.filter(([r, c]) => cells[r][c].classList.contains("jp")).length;
-
+  
   let hadiah = 0;
-
-  if (target === "red-2" && red === 2) { hadiah = bet * 2; menang = true; }
-  if (target === "red-3" && red === 3) { hadiah = bet * 8; menang = true; }
-  if (target === "white-2" && white === 2) { hadiah = bet * 2; menang = true; }
-  if (target === "white-3" && white === 3) { hadiah = bet * 8; menang = true; }
-  if (target === "jp-1" && jp >= 1) { hadiah = bet * 16; menang = true; }
-  if (target === "jp-2" && jp >= 2) { hadiah = bet * 226; menang = true; }
-
+  const totalBet = player.totalBet || 0;
+  
+  if (target === "red-2" && red === 2) { hadiah = totalBet * 2; menang = true; }
+  if (target === "red-3" && red === 3) { hadiah = totalBet * 8; menang = true; }
+  if (target === "white-2" && white === 2) { hadiah = totalBet * 2; menang = true; }
+  if (target === "white-3" && white === 3) { hadiah = totalBet * 8; menang = true; }
+  if (target === "jp-1" && jp >= 1) { hadiah = totalBet * 16; menang = true; }
+  if (target === "jp-2" && jp >= 2) { hadiah = totalBet * 226; menang = true; }
+  
   if (menang) {
   players[i].deposit += hadiah;
   players[i].status = "Menang";
@@ -779,10 +850,10 @@ players.forEach((player, i) => {
   // Reset taruhan per sesi
   players[i].bet = null;
   players[i].betTarget = null;
-});
-
-sessionStorage.setItem("players", JSON.stringify(players));
-showPlayers(); // refresh tampilan pemain
+  });
+  
+  sessionStorage.setItem("players", JSON.stringify(players));
+  showPlayers(); // refresh tampilan pemain
   
   if (hasWinner) {
   showCelebration();
@@ -852,15 +923,21 @@ showPlayers(); // refresh tampilan pemain
   row.innerHTML = `
   <td>${index + 1}</td>
   <td>${player.name}</td>
-  <td>${player.status ? (player.status === "Menang" ? "✅ Menang" : "❌ Kalah") : "-"}</td>
+  <td class="${player.status === 'Menang' ? 'status-menang' : player.status === 'Kalah' ? 'status-kalah' : ''}">
+  ${player.status === "Menang" ? "✅ Menang" : player.status === "Kalah" ? "❌ Kalah" : "-"}
+  </td>
   <td>${player.deposit}</td>
+  <td>${player.totalBet || 0}</td>
   
   <td>
   <select onchange="setPlayerBetAmount(${index}, this.value)">
   <option value="">Pilih</option>
+  <option value="500" ${player.bet == 500 ? "selected" : ""}>500</option>
   <option value="1000" ${player.bet == 1000 ? "selected" : ""}>1000</option>
+  <option value="2000" ${player.bet == 2000 ? "selected" : ""}>2000</option>
+  <option value="3000" ${player.bet == 3000 ? "selected" : ""}>3000</option>
+  <option value="4000" ${player.bet == 4000 ? "selected" : ""}>4000</option>
   <option value="5000" ${player.bet == 5000 ? "selected" : ""}>5000</option>
-  <option value="10000" ${player.bet == 10000 ? "selected" : ""}>10000</option>
   </select>
   </td>
   
@@ -921,6 +998,11 @@ showPlayers(); // refresh tampilan pemain
   
   // Kurangi saldo
   player.deposit -= player.bet;
+  
+  // Tambahkan ke total bet
+  if (!player.totalBet) player.totalBet = 0;
+  player.totalBet += player.bet;
+  
   sessionStorage.setItem("players", JSON.stringify(players));
   showPlayers();
   }
@@ -1070,7 +1152,15 @@ showPlayers(); // refresh tampilan pemain
   function stopBacksound() {
   document.getElementById("backsoundPlayer").innerHTML = "";
   }
+  
+  function openQRPopup() {
+  document.getElementById("qrModal").classList.remove("hidden");
+  }
+  
+  function closeQRPopup() {
+  document.getElementById("qrModal").classList.add("hidden");
+  }
   </script>
 
 </body>
-</html>
+  </html>
