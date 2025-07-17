@@ -1201,13 +1201,13 @@
   
   if (!document.fullscreenElement) {
   document.documentElement.requestFullscreen().then(() => {
-  icon.src = "https://img.icons8.com/ios-filled/50/ffffff/exit-full-screen.png";
+  icon.src = "https://img.icons8.com/?size=100&id=38034&format=png&color=000000";
   }).catch(err => {
   alert(`Gagal fullscreen: ${err.message}`);
   });
   } else {
   document.exitFullscreen().then(() => {
-  icon.src = "https://img.icons8.com/ios-filled/50/ffffff/full-screen.png";
+  icon.src = "https://img.icons8.com/?size=100&id=38034&format=png&color=000000";
   });
   }
   }
