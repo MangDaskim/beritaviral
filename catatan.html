@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Input & Riwayat Transaksi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 p-4">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <h1 class="text-2xl font-bold">Form Input Transaksi</h1>
+
+    <!-- Form Input -->
+    <form id="transaksiForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-xl shadow">
+      <input type="text" name="jenis" id="jenis" placeholder="Jenis Transaksi" required class="input" list="jenisList"/>
+      <datalist id="jenisList"></datalist>
+
+      <input type="number" name="dasar" id="dasar" placeholder="Harga Dasar" required class="input"/>
+      <input type="number" name="jual" id="jual" placeholder="Harga Jual" required class="input"/>
+
+      <input type="number" name="saldoApp" id="saldoApp" placeholder="Saldo Aplikasi Saat Ini" required class="input"/>
+
+      <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 col-span-2">Simpan Transaksi</button>
+    </form>
+
+    <div class="bg-white p-4 rounded-xl shadow space-y-4">
+  <h2 class="text-lg font-semibold">Tambah Saldo Aplikasi</h2>
+  <form id="formDeposit" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input type="number" id="depositAmount" placeholder="Jumlah Deposit" required class="input" />
+    <button type="submit" class="bg-green-600 text-white rounded-lg px-4 py-2 hover:bg-green-700">Tambah Saldo</button>
+  </form>
+</div>
+
+    <!-- Riwayat Transaksi -->
+    <h2 class="text-xl font-semibold">Riwayat Transaksi</h2>
+    <div class="overflow-auto bg-white p-4 rounded-xl shadow">
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
+  <div>
+    <label class="block text-sm font-medium text-gray-700">Filter Tanggal</label>
+    <input type="date" id="filterTanggal" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring focus:ring-blue-500">
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700">Filter Jenis</label>
+    <select id="filterJenis" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring focus:ring-blue-500">
+      <option value="">Semua</option>
+    </select>
+  </div>
+</div>
+      <table id="tabelRiwayat" class="table-auto w-full text-sm text-left">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="p-2">No</th>
+            <th class="p-2">Tanggal</th>
+            <th class="p-2">Jenis</th>
+            <th class="p-2">Dasar</th>
+            <th class="p-2">Jual</th>
+            <th class="p-2">Laba</th>
+            <th class="p-2">Saldo App</th>
+            <th class="p-2">Saldo Keuangan</th>
+          </tr>
+        </thead>
+        <tbody id="dataRiwayat"></tbody>
+        <tfoot class="font-semibold">
+          <tr>
+            <td colspan="5" class="p-2 text-right">Total:</td>
+            <td class="p-2 font-bold text-green-700" id="totalLaba">0</td>
+            <td class="p-2 font-bold text-green-700" id="sisaSaldoApp">0</td>
+            <td class="p-2 font-bold text-green-700" id="totalKeuangan">0</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <script>
+  const form = document.getElementById('transaksiForm');
+  const jenisInput = document.getElementById('jenis');
+  const dasarInput = document.getElementById('dasar');
+  const jualInput = document.getElementById('jual');
+  const saldoAppInput = document.getElementById('saldoApp');
+
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR-PBBrmFS0GWPpTopi_soyex4DsLASeJUIYraD4HJJTbXBLXwe64IXx73D-b4c8Y-jgJSO75h0Svl8/pub?output=csv';
+
+  function loadRiwayat() {
+  Swal.fire({
+    title: 'Memuat data...',
+    didOpen: () => Swal.showLoading(),
+    allowOutsideClick: false
+  });
+
+  Papa.parse(`${SHEET_URL}&t=${Date.now()}`, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      Swal.close();
+
+      const data = results.data;
+      let html = '', totalLaba = 0, totalKeuangan = 0, saldoAppTerakhir = 0;
+      const jenisSet = new Set();
+
+      const filterTanggal = document.getElementById('filterTanggal').value;
+      const filterJenis = document.getElementById('filterJenis').value;
+
+      const filtered = data.filter(row => {
+        if (!row.No) return false;
+
+        const cocokTanggal = !filterTanggal || row.Tanggal === filterTanggal;
+        const cocokJenis = !filterJenis || row.Jenis === filterJenis;
+        return cocokTanggal && cocokJenis;
+      });
+
+      filtered.forEach((row) => {
+        html += `
+          <tr class="border-b">
+            <td class="p-2">${row.No}</td>
+            <td class="p-2">${row.Tanggal}</td>
+            <td class="p-2">${row.Jenis}</td>
+            <td class="p-2">${row.Dasar}</td>
+            <td class="p-2">${row.Jual}</td>
+            <td class="p-2">${row.Laba}</td>
+            <td class="p-2">${row.SaldoApp}</td>
+            <td class="p-2">${row.SaldoKeuangan}</td>
+          </tr>
+        `;
+
+        totalLaba += parseInt(row.Laba || 0);
+        totalKeuangan += parseInt(row.SaldoKeuangan || 0);
+      });
+
+      document.getElementById('dataRiwayat').innerHTML = html;
+      document.getElementById('totalLaba').innerText = totalLaba;
+      document.getElementById('totalKeuangan').innerText = totalKeuangan;
+
+      // Ambil jenis unik untuk dropdown filter & datalist
+      data.forEach(row => {
+        if (row.Jenis) jenisSet.add(row.Jenis);
+      });
+
+      const jenisListEl = document.getElementById('jenisList');
+      jenisListEl.innerHTML = Array.from(jenisSet).map(j => `<option value="${j}">`).join('');
+
+      const filterJenisEl = document.getElementById('filterJenis');
+const selectedJenis = filterJenisEl.value; // Simpan pilihan user
+
+filterJenisEl.innerHTML = `<option value="">Semua</option>` + Array.from(jenisSet).map(j => `<option value="${j}">${j}</option>`).join('');
+
+// Set kembali pilihan sebelumnya
+filterJenisEl.value = selectedJenis || '';
+
+      // Isi otomatis saldo aplikasi
+      const lastValid = data.reverse().find(row => row.SaldoApp && !isNaN(row.SaldoApp));
+      if (lastValid) {
+        const saldoApp = parseInt(lastValid.SaldoApp);
+        document.getElementById('sisaSaldoApp').innerText = saldoApp;
+        saldoAppInput.value = saldoApp;
+      }
+
+      // Auto isi harga dasar/jual ketika jenis dipilih
+      jenisInput.addEventListener('change', () => {
+        const selected = data.find(row => row.Jenis === jenisInput.value);
+        if (selected) {
+          dasarInput.value = selected.Dasar;
+          jualInput.value = selected.Jual;
+        } else {
+          dasarInput.value = '';
+          jualInput.value = '';
+        }
+      });
+    },
+    error: function(err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal ambil data',
+        text: err.message || 'Cek koneksi atau link Google Sheet',
+      });
+    }
+  });
+}
+
+  loadRiwayat();
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const jenis = jenisInput.value;
+    const dasar = parseInt(dasarInput.value);
+    const jual = parseInt(jualInput.value);
+    const laba = jual - dasar;
+    const saldoApp = parseInt(saldoAppInput.value) - dasar;
+
+    const data = new URLSearchParams();
+    data.append('jenis', jenis);
+    data.append('dasar', dasar);
+    data.append('jual', jual);
+    data.append('laba', laba);
+    data.append('saldoApp', saldoApp);
+
+    Swal.fire({
+      title: 'Menyimpan transaksi...',
+      didOpen: () => Swal.showLoading(),
+      allowOutsideClick: false
+    });
+
+    fetch('https://script.google.com/macros/s/AKfycbz0hqqD8iFBCrlFd4h-ji1UfPv3VFIfecTCSdmv9ZNwE0Ecfru1q50I0ZemfHjAsh4FtQ/exec', {
+      method: 'POST',
+      body: data
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Gagal mengirim data');
+      return res.text();
+    })
+    .then(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Transaksi berhasil disimpan.',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      form.reset();
+      jenisInput.focus();
+      loadRiwayat();
+    })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Terjadi kesalahan saat mengirim data.',
+      });
+    });
+  });
+
+  document.getElementById('filterTanggal').addEventListener('change', loadRiwayat);
+  document.getElementById('filterJenis').addEventListener('change', loadRiwayat);
+
+  document.getElementById('formDeposit').addEventListener('submit', e => {
+  e.preventDefault();
+  const jumlah = parseInt(document.getElementById('depositAmount').value);
+  if (!jumlah || jumlah <= 0) return;
+
+  // Ambil saldo app sekarang
+  const saldoSekarang = parseInt(saldoAppInput.value || 0);
+  const saldoBaru = saldoSekarang + jumlah;
+
+  const data = new URLSearchParams();
+  data.append('jenis', 'DEPOSIT');
+  data.append('dasar', 0);
+  data.append('jual', 0); // dicatat di kolom jual (masuk uang)
+  data.append('laba', 0); // karena tidak ada dasar, maka laba = jual
+  data.append('saldoApp', saldoBaru);
+
+  Swal.fire({
+    title: 'Menambahkan saldo...',
+    didOpen: () => Swal.showLoading(),
+    allowOutsideClick: false
+  });
+
+  fetch('https://script.google.com/macros/s/AKfycbz0hqqD8iFBCrlFd4h-ji1UfPv3VFIfecTCSdmv9ZNwE0Ecfru1q50I0ZemfHjAsh4FtQ/exec', {
+    method: 'POST',
+    body: data
+  })
+  .then(res => {
+    if (!res.ok) throw new Error('Gagal kirim data');
+    return res.text();
+  })
+  .then(() => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: 'Saldo berhasil ditambahkan.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+    document.getElementById('formDeposit').reset();
+    loadRiwayat();
+  })
+  .catch(() => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal!',
+      text: 'Terjadi kesalahan saat menambahkan saldo.',
+    });
+  });
+});
+</script>
+
+</body>
+</html>
